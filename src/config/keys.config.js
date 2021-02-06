@@ -7,6 +7,10 @@ keys.set('PORT', process.env.PORT);
 keys.set('MONGO_URI', process.env.MONGO_URI);
 keys.set('JWT_SECRET_KEY', process.env.JWT_SECRET_KEY);
 keys.set('JWT_EXPIRES_IN', process.env.JWT_EXPIRES_IN);
+keys.set('PASSWORD_SMTP_AWS', process.env.PASSWORD_SMTP_AWS);
+keys.set('USER_SMTP_AWS', process.env.USER_SMTP_AWS);
+keys.set('HOST_SMTP', process.env.HOST_SMTP);
+keys.set('ADMIN_SERVER_EMAIL', process.env.ADMIN_SERVER_EMAIL);
 
 module.exports = {
   keys
