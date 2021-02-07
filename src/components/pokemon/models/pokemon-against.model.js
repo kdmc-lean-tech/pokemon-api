@@ -3,74 +3,74 @@ const { Schema } = require('mongoose');
 export const PokemonAgainstSchema = new Schema({
   bug: {
     type: Number,
-    required: true
+    default: 0
   },
   dark: {
     type: Number,
-    required: true
+    default: 0
   },
   dragon: {
     type: Number,
-    required: true
+    default: 0
   },
   electric: {
     type: Number,
-    required: true
+    default: 0
   },
   fairy: {
     type: Number,
-    required: true
+    default: 0
   },
   fligth: {
     type: Number,
-    required: true
+    default: 0
   },
   fire: {
     type: Number,
-    required: true
+    default: 0
   },
   flying: {
     type: Number,
-    required: true
+    default: 0
   },
   ghost: {
     type: Number,
-    required: true
+    default: 0
   },
   grass: {
     type: Number,
-    required: true
+    default: 0
   },
   ground: {
     type: Number,
-    required: true
+    default: 0
   },
   ice: {
     type: Number,
-    required: true
+    default: 0
   },
   normal: {
     type: Number,
-    required: true
+    default: 0
   },
   poison: {
     type: Number,
-    required: true
+    default: 0
   },
   psychic: {
     type: Number,
-    required: true
+    default: 0
   },
   rock: {
     type: Number,
-    required: true
+    default: 0
   },
   steel: {
     type: Number,
-    required: true
+    default: 0
   },
   water: {
     type: Number,
-    required: true
+    default: 0
   }
 });

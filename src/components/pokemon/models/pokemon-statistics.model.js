@@ -3,19 +3,19 @@ const { Schema } = require('mongoose');
 export const PokemonStatisticsSchema = new Schema({
   attack: {
     type: Number,
-    required: true
+    default: 0
   },
   baseEggSteps: {
     type: Number,
-    required: true
+    default: 0
   },
   baseHappines: {
     type: Number,
-    required: true
+    default: 0
   },
   baseTotal: {
     type: Number,
-    required: true
+    default: 0
   },
   captureRate: {
     type: Number,
