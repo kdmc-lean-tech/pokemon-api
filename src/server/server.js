@@ -4,6 +4,7 @@ const cors = require('cors');
 const { keys } = require('../config/keys.config');
 const { Database } = require('../database/database');
 const { init } = require('../routes/router');
+const path = require('path');
 
 class Server {
   constructor() {
@@ -28,6 +29,7 @@ class Server {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(fileUpload());
+    this.app.use(express.static(path.resolve(__dirname, '../../public')));
   }
 
   execute(callback) {

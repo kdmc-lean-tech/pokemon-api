@@ -5,6 +5,7 @@ const {
   clientError
 } = require('../../../../utils/result-response/result-response.utils');
 const { EmailSmtp } = require('../../../../shared/email/email');
+const { generateToken } = require('../../../../utils/jwt/jwt.utils');
 
 const registerController = async (req, res) => {
   const user = req.body;
@@ -16,13 +17,14 @@ const registerController = async (req, res) => {
       return clientError(res, `The user with email ${ email } already exists.`);
     }
     const newUser = await registerUser(user);
-    // TODO: Send email to new User....
     const message = `Hello ${ user.name }, please go to the link provided to complete the registration on the platform.`;
+    const tokenActiveUser = generateToken(newUser);
+    const url = `url-frontend/${ tokenActiveUser }`;
     emailSmtp.sendEmail(
       [email],
-      'Please active your user',
+      `Please active your user ${ user.name }`,
       'active-user',
-      { message }
+      { message, url }
     );
     return successResponse(res, newUser);
   } catch (error) {

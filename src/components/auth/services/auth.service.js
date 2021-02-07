@@ -2,7 +2,6 @@ const User = require('../models/user.model');
 const { encryptPassword } = require('../../../utils/bcryptjs/encrypt.utils');
 const { Types } = require('mongoose');
 const { getRoleByName } = require('../../roles/services/roles.service');
-const { generateToken } = require('../../../utils/jwt/jwt.utils');
 
 const registerUser = async (user) => {
   const { password } = user;
@@ -26,14 +25,28 @@ const getUserByEmail = async (userEmail) => {
   );
 }
 
-const login = (user) => {
-  token = generateToken(user);
-  return token;
+const activeUser = async (userId, status) => {
+  const { active } = status;
+  return await User.updateOne(
+    { _id: Types.ObjectId(userId) },
+    { $set: { active } }
+  )
+}
+
+const changePassword = async (password, user) => {
+  const newPassword = encryptPassword(password);
+  return await User.updateOne(
+    {
+      _id: Types.ObjectId(user._id)
+    },
+    { $set: { password: newPassword } }
+  );
 }
 
 module.exports = {
   registerUser,
   getUser,
   getUserByEmail,
-  login
+  activeUser,
+  changePassword
 }

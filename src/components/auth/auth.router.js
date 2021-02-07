@@ -1,7 +1,13 @@
 const { Router } = require('express');
-const { body } = require('express-validator');
+const { body, header } = require('express-validator');
 const { requestValidator } = require('../../middlewares/validators/request-validators');
-const { registerController, loginController } = require('./controllers/index');
+const { 
+  registerController,
+  loginController,
+  activateRegisteredUserController,
+  forgotPasswordController,
+  changePasswordController
+} = require('./controllers/index');
 
 const router = Router();
 
@@ -25,5 +31,29 @@ router.post('/login',
     requestValidator
   ],
 loginController);
+
+router.get('/activate',
+  [
+    header('token').exists(),
+    requestValidator
+  ],
+activateRegisteredUserController);
+
+router.post('/forgot-password',
+  [
+    body('email').not().isEmpty(),
+    body('email').isEmail(),
+    requestValidator
+  ],
+forgotPasswordController);
+
+router.post('/change-password',
+  [
+    header('token').exists(),
+    body('password').not().isEmpty(),
+    body('password').isStrongPassword(),
+    requestValidator
+  ],
+changePasswordController);
 
 module.exports = router;
