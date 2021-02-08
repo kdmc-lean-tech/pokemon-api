@@ -33,7 +33,6 @@ createPokemonController);
 
 router.get('/:id',
   [
-    authValidator(['user', 'admin']),
     checkParams('id').exists(),
     requestValidator
   ],
@@ -41,7 +40,6 @@ getPokemonController);
 
 router.get('/',
   [
-    authValidator(['user', 'admin']),
     checkQueries('page').not().isEmpty(),
     checkQueries('itemPerPage').not().isEmpty(),
     checkQueries('sort').not().isEmpty(),
