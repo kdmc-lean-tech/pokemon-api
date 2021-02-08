@@ -1,11 +1,11 @@
 const { Schema, model, Types } = require('mongoose');
-const { PokemonAgainstSchema } = require('./pokemon-against.model');
 const { PokemonStatisticsSchema } = require('./pokemon-statistics.model');
 
 const PokemonSchema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   isLegendary: {
     type: Boolean,
@@ -19,21 +19,21 @@ const PokemonSchema = new Schema({
     type: Number,
     required: true
   },
-  typeOne: {
-    type: Types.ObjectId,
-    ref: 'PokemonTypes'
-  },
-  typeTwo: {
-    type: Types.ObjectId,
-    ref: 'PokemonTypes'
-  },
+  types: [
+    {
+      type: Types.ObjectId,
+      ref: 'PokemonTypes',
+      required: true
+    }
+  ],
   speed: {
     type: Number,
     required: true
   },
   pokedexNumber: {
     type: Number,
-    required: true
+    required: true,
+    unique: true
   },
   japaneseName: {
     type: String,
@@ -43,23 +43,25 @@ const PokemonSchema = new Schema({
     type: Number,
     required: true
   },
-  classification: {
-    type: Types.ObjectId,
-    ref: 'PokemonClassification'
-  },
   abilities: [
     {
       type: Types.ObjectId,
-      ref: 'PokemonAbilities'
+      ref: 'PokemonAbilities',
+      required: true
     }
   ],
-  pokemonAgainst: {
-    type: PokemonAgainstSchema,
-    required: true
-  },
   pokemonStatistics: {
     type: PokemonStatisticsSchema,
     required: true
+  },
+  createdBy: {
+    type: Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  active: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true

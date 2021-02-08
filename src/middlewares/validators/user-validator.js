@@ -4,6 +4,7 @@ const {
   internalServerError
 } = require('../../utils/result-response/result-response.utils');
 const { getRole } = require('../../components/roles/services/roles.service');
+const { getUser } = require('../../components/auth/services/auth.service');
 
 const authValidator = (roles) => {
   return async (req, res, next) => {
@@ -13,7 +14,7 @@ const authValidator = (roles) => {
       if (!payload) {
         return unauthorizedError(res, `You do not have permission to perform this action.`);
       }
-      const { roleId, active } = payload;
+      const { roleId, active, _id } = payload;
 
       if (!active) {
         return unauthorizedError(res, `The user is not active on the platform.`);
@@ -25,8 +26,11 @@ const authValidator = (roles) => {
       if (!roleExist) {
         return unauthorizedError(res, `You do not have permission to perform this action.`);
       }
+
+      const user = await getUser(_id);
+      req.user = user;
     } catch (error) {
-      return internalServerError(res, error);
+      return unauthorizedError(res, error);
     }
     next();
   }
