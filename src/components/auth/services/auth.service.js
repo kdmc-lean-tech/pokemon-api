@@ -2,6 +2,7 @@ const User = require('../models/user.model');
 const { encryptPassword } = require('../../../utils/bcryptjs/encrypt.utils');
 const { Types } = require('mongoose');
 const { getRoleByName } = require('../../roles/services/roles.service');
+const { userLookup } = require('./lookups/user.lookups');
 
 const registerUser = async (user) => {
   const { password } = user;
@@ -14,15 +15,17 @@ const registerUser = async (user) => {
 }
 
 const getUser = async(userId) => {
-  return await User.findOne(
-    { _id: Types.ObjectId(userId) }
-  );
+  return await User.aggregate([
+    { $match: { _id: Types.ObjectId(userId) } },
+    { $lookup: userLookup }
+  ]).then(user => user[0]);
 }
 
 const getUserByEmail = async (userEmail) => {
-  return await User.findOne(
-    { email: userEmail }
-  );
+  return await User.aggregate([
+    { $match: { email: userEmail } },
+    { $lookup: userLookup }
+  ]).then(user => user[0]);;
 }
 
 const activeUser = async (userId, status) => {

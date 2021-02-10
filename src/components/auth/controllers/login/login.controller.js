@@ -23,6 +23,7 @@ const loginController = async (req, res) => {
     const token = generateToken(user);
     return successResponse(res, { token, user });
   } catch (error) {
+    console.log(error);
     return internalServerError(res, error);    
   }
 }
