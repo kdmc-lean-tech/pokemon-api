@@ -53,11 +53,11 @@ const getAllPokemons = async (paginator) => {
     { $lookup: abilitiesLookup },
     {
       $project: {
-        'types.name': 1,
-        'abilities.name': 1,
         name: 1,
         pokedexNumber: 1,
-        active: 1,
+        'createdBy.name': 1,
+        createdAt: 1,
+        generation: 1
       }
     }
   ]);
@@ -92,11 +92,11 @@ const getAllPokemonsByUser = async (userId, paginator) => {
       { $lookup: abilitiesLookup },
       {
         $project: {
-          'types.name': 1,
-          'abilities.name': 1,
           name: 1,
           pokedexNumber: 1,
-          active: 1
+          'createdBy.name': 1,
+          createdAt: 1,
+          generation: 1
         }
       }
     ]

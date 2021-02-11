@@ -18,7 +18,7 @@ const getAllRoles = async(paginator) => {
 }
 
 const getRole = async(roleId) => {
-  return await Role.findOne({ _id: Types.ObjectId(roleId) });
+  return await Role.findOne({ _id: roleId });
 }
 
 const updateRole = async(roleId, role) => {

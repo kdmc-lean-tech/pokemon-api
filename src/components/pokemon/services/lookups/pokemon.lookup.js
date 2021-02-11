@@ -3,14 +3,8 @@ module.exports = {
   
   createByLookup: {
     from: 'users',
-    let: { name: '$name' },
-    pipeline: [
-      {
-        $project: {
-          name: 1
-        }
-      }
-    ],
+    localField: 'createdBy',
+    foreignField: '_id',
     as: 'createdBy'
   },
 

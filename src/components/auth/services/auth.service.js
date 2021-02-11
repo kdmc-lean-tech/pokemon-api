@@ -17,15 +17,17 @@ const registerUser = async (user) => {
 const getUser = async(userId) => {
   return await User.aggregate([
     { $match: { _id: Types.ObjectId(userId) } },
-    { $lookup: userLookup }
+    { $lookup: userLookup },
+    { $unwind: '$roleId' }
   ]).then(user => user[0]);
 }
 
 const getUserByEmail = async (userEmail) => {
   return await User.aggregate([
     { $match: { email: userEmail } },
-    { $lookup: userLookup }
-  ]).then(user => user[0]);;
+    { $lookup: userLookup },
+    { $unwind: '$roleId' }
+  ]).then(user => user[0]);
 }
 
 const activeUser = async (userId, status) => {
