@@ -1,29 +1,20 @@
-const { getAllRoles } = require('../../services/roles.service');
+const { getAllRoles, getCountRoles } = require('../../services/roles.service');
 const {
   successResponse,
   internalServerError
 } = require('../../../../utils/result-response/result-response.utils');
 const {
-  convertSortQueryParams
-} = require('../../../../utils/sort-query-params-transformer/sort-query-params.utils');
+  paginatorTransformer
+} = require('../../../../utils/paginator-transformer/paginator-transformer.utils');
 
 const getAllRolesController = async(req, res) => {
-  const { page, itemPerPage, sort, search } = req.query;
+  const queries = req.query;
   try {
-    const offset = page * itemPerPage - itemPerPage;
-    const paginator = {
-      offset,
-      page,
-      itemPerPage,
-      sort: convertSortQueryParams(sort),
-      search,
-    };
-    try {
-      const roles = await getAllRoles(paginator);
-      return successResponse(res, { results: roles, paginator });
-    } catch (error) {
-      return internalServerError(res, error);
-    }
+    const paginator = paginatorTransformer(queries);
+    const roles = await getAllRoles(paginator);
+    const count = await getCountRoles();
+    paginator.count = count;
+    return successResponse(res, { results: roles, paginator });
   } catch (error) {
     return internalServerError(res, error);
   }

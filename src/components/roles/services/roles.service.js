@@ -45,6 +45,10 @@ const getRoleByName = async (roleName) => {
   );
 }
 
+const getCountRoles = async () => {
+  return await Role.find({}).countDocuments();
+}
+
 module.exports = {
   createRole,
   getAllRoles,
@@ -52,4 +56,5 @@ module.exports = {
   updateRole,
   activeRole,
   getRoleByName,
+  getCountRoles
 }
