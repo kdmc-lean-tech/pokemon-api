@@ -1,29 +1,20 @@
-const { findPokemonAbilities } = require('../../services/pokemon-abilities.service');
+const { findPokemonAbilities, getCountPokemonAbilities } = require('../../services/pokemon-abilities.service');
 const {
   successResponse,
   internalServerError
 } = require('../../../../utils/result-response/result-response.utils');
 const {
-  convertSortQueryParams
-} = require('../../../../utils/sort-query-params-transformer/sort-query-params.utils');
+  paginatorTransformer
+} = require('../../../../utils/paginator-transformer/paginator-transformer.utils');
 
 const getAllPokemonAbilitiesController = async(req, res) => {
-  const { page, itemPerPage, sort, search } = req.query;
+  const queries = req.query;
   try {
-    const offset = page * itemPerPage - itemPerPage;
-    const paginator = {
-      offset,
-      page,
-      itemPerPage,
-      sort: convertSortQueryParams(sort),
-      search,
-    };
-    try {
-      const pokemonAbilities = await findPokemonAbilities(paginator);
-      return successResponse(res, { results: pokemonAbilities, paginator });
-    } catch (error) {
-      return internalServerError(res, error);
-    }
+    const paginator = paginatorTransformer(queries);
+    const pokemonAbilities = await findPokemonAbilities(paginator);
+    const count = await getCountPokemonAbilities();
+    paginator.count = count;
+    return successResponse(res, { results: pokemonAbilities, paginator });
   } catch (error) {
     return internalServerError(res, error);
   }

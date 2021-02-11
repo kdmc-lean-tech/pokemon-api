@@ -19,6 +19,10 @@ const findPokemonAbilities = async(paginator) => {
   ]);
 }
 
+const getCountPokemonAbilities = async () => {
+  return await PokemonAbilities.find({}).countDocuments();
+}
+
 const updatePokemonAbilityById = async(pokemonAbilityId, pokemonAbility) => {
   const { name } = pokemonAbility;
   return await PokemonAbilities.updateOne(
@@ -46,5 +50,6 @@ module.exports = {
   findPokemonAbilities,
   updatePokemonAbilityById,
   activePokemonAbility,
-  getPokemonAbility
+  getPokemonAbility,
+  getCountPokemonAbilities
 }

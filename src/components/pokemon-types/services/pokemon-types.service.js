@@ -41,10 +41,15 @@ const getPokemonType = async(pokemonTypeId) => {
   return await PokemonTypes.findOne({ _id: Types.ObjectId(pokemonTypeId) });
 }
 
+const getCountPokemonTypes = async () => {
+  return await PokemonTypes.find({}).countDocuments();
+}
+
 module.exports = {
   insertPokemonTypes,
   findPokemonTypes,
   updatePokemonTypesById,
   activePokemonType,
-  getPokemonType
+  getPokemonType,
+  getCountPokemonTypes
 }
