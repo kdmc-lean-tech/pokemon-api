@@ -7,6 +7,7 @@ const {
 const { getUserByEmail } = require('../../services/auth.service');
 const { generateToken } = require('../../../../utils/jwt/jwt.utils');
 const { EmailSmtp } = require('../../../../shared/email/email');
+const { keys } = require('../../../../config/keys.config');
 
 const forgotPasswordController = async (req, res) => {
   const { email } = req.body;
@@ -20,8 +21,8 @@ const forgotPasswordController = async (req, res) => {
       return unauthorizedError(res, `The user is not active on the platform.`);
     }
     const message = `Hello ${ user.name }, please enter the following link to continue the password change process.`;
-    const tokenActiveUser = generateToken(user);
-    const url = `url-frontend/${ tokenActiveUser }`;
+    const tokenActiveUser = generateToken({ email: user.email });
+    const url = `${keys.get('URL_FRONTEND')}/auth/change-password/${ tokenActiveUser }`;
     emailSmtp.sendEmail(
       [email],
       `Change password (Pokemon Api) ${ user.name }`,

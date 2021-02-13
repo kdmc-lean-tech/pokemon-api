@@ -3,21 +3,19 @@ const {
   internalServerError
 } = require('../../../../utils/result-response/result-response.utils');
 const { verifyToken } = require('../../../../utils/jwt/jwt.utils');
-const { getUser, changePassword } = require('../../services/auth.service');
+const { getUserByEmail, changePassword } = require('../../services/auth.service');
 const { EmailSmtp } = require('../../../../shared/email/email');
 
 const changePasswordController = async (req, res) => {
-  const token = req.headers.token;
-  const { password } = req.body;
+  const password = req.headers.password;
+  const { email } = req.body;
   const emailSmtp = new EmailSmtp();
   try {
-    const { payload } = await verifyToken(token);
-    if (!payload) {
-      return unauthorizedError(res, `You do not have permission to perform this action.`);
-    }
-    const { _id } = payload;
     try {
-      const user = await getUser(_id);
+      const user = await getUserByEmail(email);
+      if (!user) {
+        return unauthorizedError(res, `You do not have permission to perform this action.`);
+      }
       await changePassword(password, user);
 
       emailSmtp.sendEmail(

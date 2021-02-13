@@ -30,11 +30,11 @@ const getUserByEmail = async (userEmail) => {
   ]).then(user => user[0]);
 }
 
-const activeUser = async (userId, status) => {
-  const { active } = status;
+const activeUserByEmail = async (email) => {
+  const user =  await getUserByEmail(email);
   return await User.updateOne(
-    { _id: Types.ObjectId(userId) },
-    { $set: { active } }
+    { _id: Types.ObjectId(user._id) },
+    { $set: { active: true } }
   )
 }
 
@@ -52,6 +52,6 @@ module.exports = {
   registerUser,
   getUser,
   getUserByEmail,
-  activeUser,
+  activeUserByEmail,
   changePassword
 }

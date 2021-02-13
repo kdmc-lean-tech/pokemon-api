@@ -17,7 +17,6 @@ router.post('/register',
     body('email').isEmail(),
     body('email').not().isEmpty(),
     body('password').not().isEmpty(),
-    body('password').isStrongPassword(),
     requestValidator
   ],
 registerController);
@@ -27,7 +26,6 @@ router.post('/login',
     body('email').isEmail(),
     body('email').not().isEmpty(),
     body('password').not().isEmpty(),
-    body('password').isStrongPassword(),
     requestValidator
   ],
 loginController);
@@ -49,9 +47,9 @@ forgotPasswordController);
 
 router.post('/change-password',
   [
-    header('token').exists(),
-    body('password').not().isEmpty(),
-    body('password').isStrongPassword(),
+    header('password').exists(),
+    body('email').not().isEmpty(),
+    body('email').isEmail(),
     requestValidator
   ],
 changePasswordController);
