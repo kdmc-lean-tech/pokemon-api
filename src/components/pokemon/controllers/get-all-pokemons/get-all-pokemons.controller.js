@@ -12,7 +12,7 @@ const getAllPokemonsController = async(req, res) => {
   try {
     const paginator = paginatorTransformer(queries);
     const pokemons = await getAllPokemons(paginator);
-    paginator.count = await getTotalPokemons();
+    paginator.count = await getTotalPokemons(paginator);
     return successResponse(res, { results: pokemons, paginator });
   } catch (error) {
     return internalServerError(res, error);

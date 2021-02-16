@@ -4,6 +4,7 @@ const rolesRouter = require('../components/roles/roles.router');
 const authRouter = require('../components/auth/auth.router');
 const pokemonAbilitiesRouter = require('../components/pokemon-abilities/pokemon-abilities.router');
 const pokemonRouter = require('../components/pokemon/pokemon.router');
+const messagesRouter = require('../components/messages/messages.router');
 
 module.exports = {
   init: (app) => {
@@ -14,6 +15,7 @@ module.exports = {
     router.use('/auth', authRouter);
     router.use('/pokemon-abilities', pokemonAbilitiesRouter);
     router.use('/pokemon', pokemonRouter);
+    router.use('/messages', messagesRouter);
   
     app.use('/api/v1/', router);
   }
