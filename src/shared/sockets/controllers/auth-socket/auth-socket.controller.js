@@ -4,6 +4,7 @@ const { getUser } = require('../../../../components/auth/services/auth.service')
 const authSocketController = (socket, next) => {
   const query = socket.handshake.query;
   const { token } = query;
+  console.log(token);
   verifyToken(token)
       .then(({ payload }) => {
         return getUser(payload._id);
