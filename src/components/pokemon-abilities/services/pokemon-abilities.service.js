@@ -10,17 +10,20 @@ const createPokemonAbilities = async (pokemonAbilities) => {
 }
 
 
-const findPokemonAbilities = async(paginator) => {
+const findPokemonAbilities = async() => {
   return await PokemonAbilities.aggregate([
-    { $match: { name: { $regex: paginator.search } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) }
+    { $project: {
+      name: 1
+    }}
   ]);
 }
 
 const getCountPokemonAbilities = async () => {
-  return await PokemonAbilities.find({}).countDocuments();
+  return await PokemonAbilities.aggregate([
+    { $count: 'name' }
+  ]).then(response => {
+    return response[0] ? response[0].name : 0
+  });
 }
 
 const updatePokemonAbilityById = async(pokemonAbilityId, pokemonAbility) => {

@@ -26,10 +26,6 @@ createPokemonTypesController);
 router.get('/',
   [
     authValidator(['user', 'admin']),
-    checkQueries('page').not().isEmpty(),
-    checkQueries('itemPerPage').not().isEmpty(),
-    checkQueries('sort').not().isEmpty(),
-    checkQueries('search').exists(),
     requestValidator
   ],
 getAllPokemonTypesController);

@@ -10,12 +10,11 @@ const insertPokemonTypes = async (pokemonTypes) => {
   return await PokemonTypes.insertMany(pokemonTypesFormat);
 }
 
-const findPokemonTypes = async(paginator) => {
+const findPokemonTypes = async() => {
   return await PokemonTypes.aggregate([
-    { $match: { name: { $regex: paginator.search } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) }
+    { $project: {
+      name: 1
+    }}
   ]);
 }
 
@@ -42,7 +41,9 @@ const getPokemonType = async(pokemonTypeId) => {
 }
 
 const getCountPokemonTypes = async () => {
-  return await PokemonTypes.find({}).countDocuments();
+  return await PokemonTypes.aggregate([
+    { $count: 'name' }
+  ]).then(response => response[0] ? response[0].name : 0);
 }
 
 module.exports = {

@@ -24,6 +24,7 @@
     "mongoose": "^5.11.15",
     "nodemailer": "^6.4.17",
     "nodemailer-pug-engine": "^1.0.2",
+    "promise-retry": "^2.0.1",
     "pug": "^3.0.0",
     "socket.io": "^2.4.1"
   },

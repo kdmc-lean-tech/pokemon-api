@@ -7,12 +7,9 @@ const {
 } = require('./lookups/pokemon.lookup');
 
 const createPokemon = async (pokemon, userId) => {
-  pokemon.name = pokemon.name.toLowerCase();
-  pokemon.japaneseName = pokemon.japaneseName.toLowerCase();
   pokemon.createdBy = userId;
   const newPokemon = new Pokemon(pokemon);
-  await newPokemon.save();
-  return newPokemon;
+  return await newPokemon.save();
 }
 
 const getPokemon = async (pokemonId) => {
@@ -36,10 +33,19 @@ const getPokemon = async (pokemonId) => {
 
 const getAllPokemons = async (paginator) => {
   return await Pokemon.aggregate([
+    { $lookup: createByLookup },
+    { $unwind: `\$${ createByLookup.as }` },
     { $match: 
       {
         $and: [
-          { name: { $regex: paginator ? paginator.search : '' } },
+          { $or:
+            [
+              { name: { $regex: paginator ? paginator.search : '', $options: 'i' } },
+              { pokedexNumber: paginator ? Number(paginator.search) : '' },
+              { generation: paginator ? Number(paginator.search) : '' },
+              { 'createdBy.name': { $regex: paginator ? paginator.search : '', $options: 'i' } }
+            ]
+          },
           { active: true }
         ]
       }
@@ -47,10 +53,6 @@ const getAllPokemons = async (paginator) => {
     { $skip: Number(paginator.offset) },
     { $limit: Number(paginator.itemPerPage) },
     { $sort: paginator.sort },
-    { $lookup: createByLookup },
-    { $unwind: `\$${ createByLookup.as }` },
-    { $lookup: typesLookup },
-    { $lookup: abilitiesLookup },
     {
       $project: {
         name: 1,
@@ -66,10 +68,19 @@ const getAllPokemons = async (paginator) => {
 const getTotalPokemons = async (paginator) => {
   return await Pokemon.aggregate(
    [
+    { $lookup: createByLookup },
+    { $unwind: `\$${ createByLookup.as }` },
     { $match: 
       {
         $and: [
-          { name: { $regex: paginator ? paginator.search : '' } },
+          { $or:
+            [
+              { name: { $regex: paginator ? paginator.search : '', $options: 'i' } },
+              { pokedexNumber: paginator ? Number(paginator.search) : '' },
+              { generation: paginator ? Number(paginator.search) : '' },
+              { 'createdBy.name': { $regex: paginator ? paginator.search : '', $options: 'i' } }
+            ]
+          },
           { active: true }
         ]
       }
@@ -79,42 +90,6 @@ const getTotalPokemons = async (paginator) => {
   ).then(response => {
     return response[0] ? response[0].name : 0
   });
-}
-
-const getTotalPokemonsByUser = async (userId) => {
-  return await Pokemon.find({ createdBy: userId }).countDocuments();
-}
-
-const getAllPokemonsByUser = async (userId, paginator) => {
-  return await Pokemon.aggregate(
-    [
-      { 
-        $match: {
-          $and: [
-            { name: { $regex: paginator.search } },
-            { active: true },
-            { createdBy: userId }
-          ]
-        } 
-      },
-      { $sort: paginator.sort },
-      { $skip: Number(paginator.offset) },
-      { $limit: Number(paginator.itemPerPage) },
-      { $lookup: createByLookup },
-      { $unwind: `\$${ createByLookup.as }` },
-      { $lookup: typesLookup },
-      { $lookup: abilitiesLookup },
-      {
-        $project: {
-          name: 1,
-          pokedexNumber: 1,
-          'createdBy.name': 1,
-          createdAt: 1,
-          generation: 1
-        }
-      }
-    ]
-  );
 }
 
 const activePokemon  = async (pokemonId, status) => {
@@ -138,9 +113,7 @@ module.exports = {
   createPokemon,
   getPokemon,
   getAllPokemons,
-  getAllPokemonsByUser,
   getTotalPokemons,
-  getTotalPokemonsByUser,
   activePokemon,
   updatePokemon
 }

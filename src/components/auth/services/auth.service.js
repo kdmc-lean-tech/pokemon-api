@@ -48,10 +48,60 @@ const changePassword = async (password, user) => {
   );
 }
 
+const setOnlineStatus = async (userId, status) => {
+  return await User.updateOne(
+    {
+      _id: Types.ObjectId(userId)
+    },
+    { $set: { online: status } }
+  );
+}
+
+const getSocketUsersById= async (userId, search) => {
+  return await User.aggregate(
+    [
+      { $match: 
+        {
+          $and: [
+            { _id: { $ne: userId } },
+            { active: true },
+            {  name: { $regex: search ? search : '', $options: 'i' } }
+          ]
+        }
+      },
+      { $sort: { online: -1 } },
+      { 
+        $project: {
+          name: 1,
+          online: 1
+        }
+      }
+    ]
+  );
+}
+
+const getSocketUsers= async () => {
+  return await User.aggregate(
+    [
+      { $match: { active: true } },
+      { $sort: { online: -1 } },
+      { 
+        $project: {
+          name: 1,
+          online: 1
+        }
+      }
+    ]
+  );
+}
+
 module.exports = {
   registerUser,
   getUser,
   getUserByEmail,
   activeUserByEmail,
-  changePassword
+  changePassword,
+  setOnlineStatus,
+  getSocketUsers,
+  getSocketUsersById
 }
