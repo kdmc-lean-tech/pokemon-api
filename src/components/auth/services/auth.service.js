@@ -2,7 +2,7 @@ const User = require('../models/user.model');
 const { encryptPassword } = require('../../../utils/bcryptjs/encrypt.utils');
 const { Types } = require('mongoose');
 const { getRoleByName } = require('../../roles/services/roles.service');
-const { userLookup } = require('./lookups/user.lookups');
+const { roleLookup } = require('./lookups/user.lookups');
 
 const registerUser = async (user) => {
   const { password } = user;
@@ -17,7 +17,7 @@ const registerUser = async (user) => {
 const getUser = async(userId) => {
   return await User.aggregate([
     { $match: { _id: Types.ObjectId(userId) } },
-    { $lookup: userLookup },
+    { $lookup: roleLookup },
     { $unwind: '$roleId' }
   ]).then(user => user[0]);
 }
@@ -25,7 +25,7 @@ const getUser = async(userId) => {
 const getUserByEmail = async (userEmail) => {
   return await User.aggregate([
     { $match: { email: userEmail } },
-    { $lookup: userLookup },
+    { $lookup: roleLookup },
     { $unwind: '$roleId' }
   ]).then(user => user[0]);
 }
@@ -57,20 +57,19 @@ const setOnlineStatus = async (userId, status) => {
   );
 }
 
-const getSocketUsersById= async (userId, search) => {
-  return await User.aggregate(
+const getSocketUsers= async (search) => {
+  const results = await User.aggregate(
     [
-      { $match: 
+      { $match:
         {
           $and: [
-            { _id: { $ne: userId } },
             { active: true },
-            {  name: { $regex: search ? search : '', $options: 'i' } }
+            { name: { $regex: search ? search : '', $options: 'i' } }
           ]
-        }
+        },
       },
       { $sort: { online: -1 } },
-      { 
+      {
         $project: {
           name: 1,
           online: 1
@@ -78,21 +77,7 @@ const getSocketUsersById= async (userId, search) => {
       }
     ]
   );
-}
-
-const getSocketUsers= async () => {
-  return await User.aggregate(
-    [
-      { $match: { active: true } },
-      { $sort: { online: -1 } },
-      { 
-        $project: {
-          name: 1,
-          online: 1
-        }
-      }
-    ]
-  );
+  return results;
 }
 
 module.exports = {
@@ -102,6 +87,5 @@ module.exports = {
   activeUserByEmail,
   changePassword,
   setOnlineStatus,
-  getSocketUsers,
-  getSocketUsersById
+  getSocketUsers
 }

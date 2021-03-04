@@ -18,6 +18,10 @@ const MessageSchema = Schema({
   active: {
     type: Boolean,
     default: true
+  },
+  seen: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

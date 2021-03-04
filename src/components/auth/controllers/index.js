@@ -7,7 +7,6 @@ const { forgotPasswordController } = require('../controllers/forgot-password/for
 const { changePasswordController } = require('../controllers/change-password/change-password.controller');
 const {
   getSocketUsersController,
-  getSocketUsersControllerById
 } = require('./get-all-socket-users/get-all-socket-users.controller');
 
 module.exports = {
@@ -16,6 +15,5 @@ module.exports = {
   activateRegisteredUserController,
   forgotPasswordController,
   changePasswordController,
-  getSocketUsersController,
-  getSocketUsersControllerById
+  getSocketUsersController
 }

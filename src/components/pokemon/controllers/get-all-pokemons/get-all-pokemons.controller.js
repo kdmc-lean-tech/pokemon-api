@@ -15,7 +15,6 @@ const getAllPokemonsController = async(req, res) => {
     paginator.count = await getTotalPokemons(paginator);
     return successResponse(res, { results: pokemons, paginator });
   } catch (error) {
-    console.log(error);
     return internalServerError(res, error);
   }
 }

@@ -1,5 +1,5 @@
 const { verifyToken } = require('../../../../utils/jwt/jwt.utils');
-const { getUser } = require('../../../../components/auth/services/auth.service');
+const { getUser, setOnlineStatus } = require('../../../../components/auth/services/auth.service');
 
 const authSocketController = async (socket, next) => {
   const query = socket.handshake.query;
@@ -10,6 +10,7 @@ const authSocketController = async (socket, next) => {
     if (!user) {
       return socket.disconnect();
     }
+    await setOnlineStatus(user._id, true);
     socket.request.user = user;
     socket.id = user._id;
     next();

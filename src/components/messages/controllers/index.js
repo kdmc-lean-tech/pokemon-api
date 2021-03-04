@@ -6,7 +6,17 @@ const {
   saveMessageController
 } = require('./save-message/save-message.controller');
 
+const {
+  seeMessageController
+} = require('../controllers/see-message/see-message.controller');
+
+const {
+  getMessageController
+} = require('../controllers/get-message/get-message.controller');
+
 module.exports = {
   getMessagesController,
-  saveMessageController
+  saveMessageController,
+  seeMessageController,
+  getMessageController
 }

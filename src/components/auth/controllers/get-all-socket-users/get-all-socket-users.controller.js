@@ -1,18 +1,11 @@
 const {
-  getSocketUsers,
-  getSocketUsersById
+  getSocketUsers
 } = require('../../services/auth.service');
 
-const getSocketUsersControllerById = async (socket, search) => {
-  const userId = socket.id;
-  return await getSocketUsersById(userId, search);
-}
-
-const getSocketUsersController = async () => {
-  return await getSocketUsers();
+const getSocketUsersController = async (search) => {
+  return await getSocketUsers(search);
 }
 
 module.exports = {
-  getSocketUsersController,
-  getSocketUsersControllerById
+  getSocketUsersController
 }
