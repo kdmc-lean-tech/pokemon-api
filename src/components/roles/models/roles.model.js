@@ -6,6 +6,15 @@ const RoleSchema = new Schema({
     required: true,
     unique: true
   },
+  modules: [
+    {
+      name: {
+        type: String,
+        required: true,
+        unique: true
+      }
+    }
+  ],
   active: {
     type: Boolean,
     default: true

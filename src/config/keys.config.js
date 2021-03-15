@@ -12,6 +12,8 @@ keys.set('USER_SMTP_AWS', process.env.USER_SMTP_AWS);
 keys.set('HOST_SMTP', process.env.HOST_SMTP);
 keys.set('ADMIN_SERVER_EMAIL', process.env.ADMIN_SERVER_EMAIL);
 keys.set('URL_FRONTEND', process.env.URL_FRONTEND);
+keys.set('AWS_ACCESS_KEY_ID', process.env.AWS_ACCESS_KEY_ID);
+keys.set('AWS_SECRET_ACCESS_KEY', process.env.AWS_SECRET_ACCESS_KEY);
 
 module.exports = {
   keys

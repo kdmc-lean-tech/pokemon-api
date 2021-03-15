@@ -23,17 +23,16 @@ router.post('/',
     body('weight').not().isEmpty(),
     body('types').isArray({ min: 1 }),
     body('pokedexNumber').not().isEmpty(),
-    body('japaneseName').not().isEmpty(),
     body('height').not().isEmpty(),
     body('abilities').isArray({ min: 1 }),
     body('pokemonStatistics').not().isEmpty(),
+    body('description').not().isEmpty(),
     requestValidator
   ],
 createPokemonController);
 
 router.get('/:id',
   [
-    authValidator(['admin', 'user']),
     checkParams('id').exists(),
     requestValidator
   ],
@@ -58,10 +57,11 @@ router.put('/:id',
     body('weight').not().isEmpty(),
     body('types').isArray({ min: 1 }),
     body('pokedexNumber').not().isEmpty(),
-    body('japaneseName').not().isEmpty(),
     body('height').not().isEmpty(),
     body('abilities').isArray({ min: 1 }),
     body('pokemonStatistics').not().isEmpty(),
+    body('description').not().isEmpty(),
+    body('sex').not().isEmpty(),
     requestValidator
   ],
 updatePokemonController);
@@ -72,6 +72,6 @@ router.patch('/:id/active',
     body('active').not().isEmpty(),
     requestValidator
   ],
-activePokemonController)
+activePokemonController);
 
 module.exports = router;

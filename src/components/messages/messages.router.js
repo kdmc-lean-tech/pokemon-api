@@ -15,7 +15,7 @@ router.get('/:of',
   ],
 getMessagesController);
 
-router.get('/:id',
+router.get('/message/:id',
   [
     authValidator(['user', 'admin']),
     checkParams('id').exists(),

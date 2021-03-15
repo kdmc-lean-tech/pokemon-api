@@ -5,6 +5,14 @@ const roleLookup = {
   as: 'roleId'
 };
 
+const avatarLookup = {
+  from: 'images',
+  localField:'avatar',
+  foreignField: '_id',
+  as: 'avatar'
+}
+
 module.exports = {
-  roleLookup
+  roleLookup,
+  avatarLookup
 }

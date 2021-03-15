@@ -20,5 +20,12 @@ module.exports = {
     localField: 'abilities',
     foreignField: '_id',
     as: 'abilities'
+  },
+
+  avatarLookup: {
+    from: 'images',
+    localField: 'avatar',
+    foreignField: '_id',
+    as: 'avatar'
   }
 }

@@ -2,20 +2,21 @@ const User = require('../models/user.model');
 const { encryptPassword } = require('../../../utils/bcryptjs/encrypt.utils');
 const { Types } = require('mongoose');
 const { getRoleByName } = require('../../roles/services/roles.service');
-const { roleLookup } = require('./lookups/user.lookups');
+const { roleLookup, avatarLookup } = require('./lookups/user.lookups');
+const { getMessagesFromUser, getMessagesFromUsers } = require('../../messages/services/messages.service');
 
 const registerUser = async (user) => {
   const { password } = user;
   user.password = encryptPassword(password);
   const defaultRole = await getRoleByName('user');
   user.roleId = defaultRole;
-  const newUser = new User(user);
-  await newUser.save();
-  return newUser;
+  return User.create(user);
 }
 
 const getUser = async(userId) => {
   return await User.aggregate([
+    { $lookup: avatarLookup },
+    { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } },
     { $match: { _id: Types.ObjectId(userId) } },
     { $lookup: roleLookup },
     { $unwind: '$roleId' }
@@ -26,7 +27,9 @@ const getUserByEmail = async (userEmail) => {
   return await User.aggregate([
     { $match: { email: userEmail } },
     { $lookup: roleLookup },
-    { $unwind: '$roleId' }
+    { $unwind: '$roleId' },
+    { $lookup: avatarLookup },
+    { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } }
   ]).then(user => user[0]);
 }
 
@@ -57,9 +60,11 @@ const setOnlineStatus = async (userId, status) => {
   );
 }
 
-const getSocketUsers= async (search) => {
+const getSocketUsers= async (search, userId) => {
   const results = await User.aggregate(
     [
+      { $lookup: avatarLookup },
+      { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } },
       { $match:
         {
           $and: [
@@ -72,12 +77,22 @@ const getSocketUsers= async (search) => {
       {
         $project: {
           name: 1,
-          online: 1
+          online: 1,
+          'avatar.url': 1
         }
       }
     ]
   );
-  return results;
+  const users = await getMessagesFromUsers(results, userId);
+  return users;
+}
+
+const updateAvatarUser = async (user, avatar) => {
+  user.avatar = avatar._id;
+  return await User.updateOne(
+    { _id: Types.ObjectId(user._id) },
+    { $set: user }
+  );
 }
 
 module.exports = {
@@ -87,5 +102,6 @@ module.exports = {
   activeUserByEmail,
   changePassword,
   setOnlineStatus,
-  getSocketUsers
+  getSocketUsers,
+  updateAvatarUser
 }

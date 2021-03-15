@@ -13,7 +13,31 @@ const getMessages = async (userId, messageOf) => {
       }
     },
     { $sort: { createdAt: 1 } },
+    { $lookup: userOfLookup },
+    { $unwind: '$of' },
+    { $lookup: userToLookup },
+    { $unwind: '$to' },
   ])
+}
+
+const getMessagesFromUsers = async (users, userId) => {
+  const newUsers = [];
+  users.forEach(user => {
+    newUsers.push(getMessagesFromUser(user, userId));
+  });
+  return Promise.all(newUsers);
+}
+
+const getMessagesFromUser = async (user, to) => {
+  const totalMessages = await getMessages(to, user._id);
+  return {
+    ...user,
+    totalMessages: totalMessages.filter(m =>
+      String(m.of._id) === String(user._id)
+      &&
+      m.seen === false
+    ).length
+  }
 }
 
 const getMessagesCount = async (userId, messageOf) => {
@@ -60,5 +84,7 @@ module.exports = {
   saveMessage,
   getMessagesCount,
   seeMessage,
-  getMessage
+  getMessage,
+  getMessagesFromUser,
+  getMessagesFromUsers
 }

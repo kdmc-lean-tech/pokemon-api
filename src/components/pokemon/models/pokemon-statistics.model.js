@@ -20,6 +20,10 @@ const PokemonStatisticsSchema = new Schema({
   spDefense: {
     type: Number,
     required: true
+  },
+  speed: {
+    type: Number,
+    required: true
   }
 });
 

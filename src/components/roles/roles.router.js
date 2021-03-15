@@ -18,6 +18,7 @@ router.post('/',
   [
     authValidator(['admin']),
     body('name').not().isEmpty(),
+    body('modules').isArray({ min: 1 }),
     requestValidator
   ],
 createRoleController);
@@ -55,6 +56,7 @@ router.put('/:id',
     authValidator(['admin']),
     checkParams('id').exists(),
     body('name').not().isEmpty(),
+    body('modules').isArray({ min: 1 }),
     requestValidator
   ],
 updateRoleController);

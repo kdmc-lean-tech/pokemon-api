@@ -26,18 +26,10 @@ const PokemonSchema = new Schema({
       required: true
     }
   ],
-  speed: {
-    type: Number,
-    required: true
-  },
   pokedexNumber: {
     type: Number,
     required: true,
     unique: true
-  },
-  japaneseName: {
-    type: String,
-    required: true
   },
   height: {
     type: Number,
@@ -62,6 +54,30 @@ const PokemonSchema = new Schema({
   active: {
     type: Boolean,
     default: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  avatar: {
+    type: Types.ObjectId,
+    ref: 'Image'
+  },
+  status: {
+    type: String,
+    enum: ['REJECTED', 'APPROVED', 'PENDING', 'EXPIRED'],
+    default: 'PENDING'
+  },
+  categories: [
+    {
+      type: Types.ObjectId,
+      ref: 'PokemonCategories',
+      required: true
+    }
+  ],
+  closingDate: {
+    type: Date,
+    required: true
   }
 }, {
   timestamps: true

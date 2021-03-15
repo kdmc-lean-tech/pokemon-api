@@ -1,14 +1,8 @@
 const PokemonAbilities = require('../models/pokemon-abilities.model');
 
 const createPokemonAbilities = async (pokemonAbilities) => {
-  const pokemonAbilitiesFormat = pokemonAbilities.map(({ name }) => {
-    return {
-      name: name.toLowerCase()
-    }
-  });
-  return await PokemonAbilities.insertMany(pokemonAbilitiesFormat);
+  return await PokemonAbilities.insertMany(pokemonAbilities);
 }
-
 
 const findPokemonAbilities = async() => {
   return await PokemonAbilities.aggregate([

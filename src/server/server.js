@@ -8,6 +8,7 @@ const { Sockets } = require('../shared/sockets/sockets');
 const { init } = require('../routes/router');
 const socketio = require('socket.io');
 const path = require('path');
+const { startCrons } = require('../shared/crons/index');
 
 const origin = {
   origin: '*',
@@ -24,6 +25,7 @@ class Server {
     this.middlewares();
     this.initDatabse();
     this.initRoutes();
+    this.initCrons();
   }
 
   initDatabse() {
@@ -36,6 +38,10 @@ class Server {
 
   initRoutes() {
     init(this.app);
+  }
+
+  initCrons() {
+    startCrons();
   }
 
   middlewares() {

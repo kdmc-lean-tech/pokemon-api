@@ -11,6 +11,8 @@ const createPokemonController = async (req, res) => {
   const user = req.user;
   try {
     const newPokemon = await createPokemon(pokemon, user._id);
+    // TODO: Add notification.........
+    // TODO: Send email to admin users........
     return successResponse(res, newPokemon);
   } catch (error) {
     return internalServerError(res, error);

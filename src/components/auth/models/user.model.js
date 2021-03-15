@@ -23,6 +23,10 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false
   },
+  avatar: {
+    type: Schema.Types.ObjectId,
+    ref: 'Image'
+  },
   online: {
     type: Boolean,
     default: false

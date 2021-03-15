@@ -2,10 +2,7 @@ const Role = require('../models/roles.model');
 const { Types } = require('mongoose');
 
 const createRole = async(role) => {
-  role.name = role.name.toLowerCase();
-  const newRole = new Role(role);
-  await newRole.save();
-  return newRole;
+  return await Role.create(role);
 }
 
 const getAllRoles = async(paginator) => {
@@ -46,7 +43,10 @@ const getRoleByName = async (roleName) => {
 }
 
 const getCountRoles = async () => {
-  return await Role.find({}).countDocuments();
+  return await Role.aggregate([
+    { $match: { name: { $regex: paginator.search } } },
+    { $count: 'name' }
+  ]).then(response => response[0] ? response[0].name : 0);
 }
 
 module.exports = {

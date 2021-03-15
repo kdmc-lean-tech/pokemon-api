@@ -18,10 +18,15 @@ const {
   updatePokemonController
 } = require('../controllers/update-pokemon/update-pokemon.controller');
 
+const {
+  approvePokemonCreatedController
+} = require('../controllers/approve-pokemon/approve-pokemon.controller');
+
 module.exports = {
   createPokemonController,
   getPokemonController,
   getAllPokemonsController,
   activePokemonController,
-  updatePokemonController
+  updatePokemonController,
+  approvePokemonCreatedController
 }

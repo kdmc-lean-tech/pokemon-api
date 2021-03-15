@@ -14,7 +14,6 @@ const getPokemonController = async (req, res) => {
     }
     return successResponse(res, pokemon);
   } catch (error) {
-    console.log(error);
     return internalServerError(res, error);
   }
 }
