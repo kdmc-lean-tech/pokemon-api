@@ -6,35 +6,36 @@ const createModule = async (module) => {
 }
 
 const getModule = async (moduleId) => {
-  return await Module.aggregate([
-    { _id: Types.ObjectId(moduleId) }
-  ]).then(response => response[0]);
+  return await Module.findOne({
+    _id: Types.ObjectId(moduleId)
+  });
 }
 
 const getModules = async (paginator) => {
-  return await Module.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) }
-  ]);
+  return await Module.find({
+    name: { $regex: paginator.search, $options: 'i' } 
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .exec();
 }
 
 const getCountModules = async (paginator) => {
-  return await Module.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) },
-    { $count: 'name' }
-  ]).then(response => response[0] ? response[0].name : 0);
+  return await Module.find({
+    name: { $regex: paginator.search, $options: 'i' } 
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .countDocuments();
 }
 
 const searchModules = async (search) => {
-  return await Module.aggregate([
-    { $match: { name: { $regex: search, $options: 'i' } } },
-    { $limit: 10 }
-  ]);
+  return await Module.find({
+    name: { $regex: search, $options: 'i' }
+  })
+    .limit(10);
 }
 
 const getAllModules = async () => {

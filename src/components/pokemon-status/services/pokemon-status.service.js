@@ -18,9 +18,9 @@ const createPokemonStatus = async (pokemonStatus) => {
 }
 
 const getPokemonStatusByName = async (name) => {
-  return await PokemonStatus.aggregate([
-    { $match: { name } }
-  ]).then(response => response[0]);
+  return PokemonStatus.findOne({
+    name
+  });
 }
 
 module.exports = {

@@ -1,23 +1,18 @@
 const Message = require('../models/messages.model');
 const { Types } = require('mongoose');
-const { userOfLookup, userToLookup } = require('./lookups/messages.lookup');
 
 const getMessages = async (userId, messageOf) => {
-  return await Message.aggregate([
-    { $match: 
-      {
-        $or: [
-          { $and: [ { to: Types.ObjectId(messageOf) }, { of: Types.ObjectId(userId) } ] },
-          { $and: [ { to: Types.ObjectId(userId) },    { of: Types.ObjectId(messageOf) }] }
-        ]
-      }
-    },
-    { $sort: { createdAt: 1 } },
-    { $lookup: userOfLookup },
-    { $unwind: '$of' },
-    { $lookup: userToLookup },
-    { $unwind: '$to' },
-  ])
+  return await Message.find({
+    $or: [
+      { $and: [ { to: Types.ObjectId(messageOf) }, { of: Types.ObjectId(userId) } ] },
+      { $and: [ { to: Types.ObjectId(userId) },    { of: Types.ObjectId(messageOf) }] }
+    ]
+  })
+    .sort({ createdAt: 1 })
+    .populate('user')
+    .populate('of')
+    .populate('to')
+    .exec();
 }
 
 const getMessagesFromUsers = async (users, userId) => {
@@ -31,7 +26,10 @@ const getMessagesFromUsers = async (users, userId) => {
 const getMessagesFromUser = async (user, to) => {
   const totalMessages = await getMessages(to, user._id);
   return {
-    ...user,
+    _id: user._id,
+    name: user.name,
+    avatar: user.avatar,
+    online: user.online,
     totalMessages: totalMessages.filter(m =>
       String(m.of._id) === String(user._id)
       &&
@@ -41,18 +39,14 @@ const getMessagesFromUser = async (user, to) => {
 }
 
 const getMessagesCount = async (userId, messageOf) => {
-  return await Message.aggregate([
-    { $match: 
-      {
-        $or: [
-          { $and: [ { to: Types.ObjectId(messageOf) }, { of: Types.ObjectId(userId) } ] },
-          { $and: [ { to: Types.ObjectId(userId) },    { of: Types.ObjectId(messageOf) }] }
-        ]
-      }
-    },
-    { $sort: { createdAt: 1 } },
-    { $count: 'name' }
-  ]).then(response => response[0] ? response[0].name : 0);
+  return await Message.find({
+    $or: [
+      { $and: [ { to: Types.ObjectId(messageOf) }, { of: Types.ObjectId(userId) } ] },
+      { $and: [ { to: Types.ObjectId(userId) },    { of: Types.ObjectId(messageOf) }] }
+    ]
+  })
+    .sort({ createdAt: 1 })
+    .countDocuments();
 }
 
 const saveMessage = async (chatMessage) => {
@@ -68,15 +62,12 @@ const seeMessage = async (messageId) => {
 }
 
 const getMessage = async (messageId) => {
-  return await Message.aggregate(
-    [
-      { $match: { _id: Types.ObjectId(messageId) } },
-      { $lookup: userOfLookup },
-      { $unwind: '$of' },
-      { $lookup: userToLookup },
-      { $unwind: '$to' },
-    ]
-  ).then(response => response[0]);
+  return await Message.find({
+    _id: Types.ObjectId(messageId)
+  })
+    .populate('user')
+    .populate('of')
+    .populate('to');
 }
 
 module.exports = {

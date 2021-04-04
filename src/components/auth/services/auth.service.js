@@ -2,7 +2,6 @@ const User = require('../models/user.model');
 const { encryptPassword } = require('../../../utils/bcryptjs/encrypt.utils');
 const { Types } = require('mongoose');
 const { getRoleByName } = require('../../roles/services/roles.service');
-const { roleLookup, avatarLookup } = require('./lookups/user.lookups');
 const { getMessagesFromUsers } = require('../../messages/services/messages.service');
 
 const registerUser = async (user) => {
@@ -14,34 +13,24 @@ const registerUser = async (user) => {
 }
 
 const getUser = async(userId) => {
-  return await User.aggregate([
-    { $lookup: avatarLookup },
-    { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } },
-    { $match: { _id: Types.ObjectId(userId) } },
-    { $lookup: roleLookup },
-    { $unwind: '$roleId' }
-  ]).then(user => user[0]);
+  return await User.findOne({
+    _id: Types.ObjectId(userId)   
+  })
+    .populate('avatar')
+    .populate('role')
 }
 
 const getUserByEmail = async (userEmail) => {
-  return await User.aggregate([
-    { $match: { email: userEmail } },
-    { $lookup: roleLookup },
-    {
-      $unwind: {
-        path: "$roleId",
-        preserveNullAndEmptyArrays: true
-      },
-    },
-    { $lookup: {
-      from: 'modules',
-      localField: 'roleId.modules',
-      foreignField: '_id',
-      as: 'roleId.modules'
-    }},
-    { $lookup: avatarLookup },
-    { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } }
-  ]).then(user => user[0]);
+  return await User.findOne({
+    email: userEmail
+  })
+    .populate({
+      path: 'roleId',
+      populate: {
+        path: 'modules'
+      }
+    })
+    .populate('avatar')
 }
 
 const activeUserByEmail = async (email) => {
@@ -72,28 +61,19 @@ const setOnlineStatus = async (userId, status) => {
 }
 
 const getSocketUsers= async (search, userId) => {
-  const results = await User.aggregate(
-    [
-      { $lookup: avatarLookup },
-      { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } },
-      { $match:
-        {
-          $and: [
-            { active: true },
-            { name: { $regex: search ? search : '', $options: 'i' } }
-          ]
-        },
-      },
-      { $sort: { online: -1 } },
-      {
-        $project: {
-          name: 1,
-          online: 1,
-          'avatar.url': 1
-        }
-      }
+  const results = await User.find({
+    $and: [
+      { name: { $regex: search ? search : '', $options: 'i' } },
+      { active: true }
     ]
-  );
+  })
+    .sort({ online: -1 })
+    .populate({
+      path: 'avatar',
+      select: 'url'
+    })
+    .exec();
+
   const users = await getMessagesFromUsers(results, userId);
   return users;
 }
@@ -106,6 +86,14 @@ const updateAvatarUser = async (user, avatar) => {
   );
 }
 
+const editProfileUser = async (userId, user) => {
+  const { name } = user;
+  return await User.updateOne(
+    { _id: Types.ObjectId(userId) },
+    { $set: { name } }
+  );
+}
+
 module.exports = {
   registerUser,
   getUser,
@@ -114,5 +102,6 @@ module.exports = {
   changePassword,
   setOnlineStatus,
   getSocketUsers,
-  updateAvatarUser
+  updateAvatarUser,
+  editProfileUser
 }

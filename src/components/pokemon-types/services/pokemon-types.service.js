@@ -2,11 +2,6 @@ const PokemonTypes = require('../models/pokemon-types.model');
 const { Types } = require('mongoose');
 
 const insertPokemonTypes = async (pokemonTypes) => {
-  const pokemonTypesFormat = pokemonTypes.map(({ name }) => {
-    return {
-      name: name.toLowerCase()
-    }
-  });
   return await PokemonTypes.insertMany(pokemonTypesFormat);
 }
 
@@ -22,8 +17,7 @@ const updatePokemonTypesById = async(pokemonTypesId, pokemonType) => {
   const { name } = pokemonType;
   return await PokemonTypes.updateOne(
     { _id: Types.ObjectId(pokemonTypesId) },
-    { $set: { name: name.toLowerCase() } },
-    { lean: true, new: true }
+    { $set: { name } },
   );
 }
 
@@ -31,8 +25,7 @@ const activePokemonType =async (pokemonTypesId, status)  => {
   const { active } = status;
   return await PokemonTypes.updateOne(
     { _id: Types.ObjectId(pokemonTypesId) },
-    { $set: { active } },
-    { lean: true, new: true }
+    { $set: { active } }
   );
 }
 
@@ -48,22 +41,23 @@ const searchPokemonTypes = async (search) => {
 }
 
 const getPokemonTypes = async (paginator) => {
-  return await PokemonTypes.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) }
-  ]);
+  return await PokemonTypes.find({
+    name: { $regex: paginator.search, $options: 'i' }
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .exec();
 }
 
 const getCountPokemonTypes = async (paginator) => {
-  return await PokemonTypes.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) },
-    { $count: 'name' }
-  ]).then(response => response[0] ? response[0].name : 0);
+  return await PokemonTypes.find({
+    name: { $regex: paginator.search, $options: 'i' }
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .countDocuments();
 }
 
 module.exports = {

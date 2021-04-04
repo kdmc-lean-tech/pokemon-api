@@ -6,35 +6,36 @@ const createPermission = async (permission) => {
 }
 
 const getPermission = async (permissionId) => {
-  return await Permission.aggregate([
-    { _id: Types.ObjectId(permissionId) }
-  ]).then(response => response[0]);
+  return await Permission.findOne({
+    _id: Types.ObjectId(permissionId)
+  });
 }
 
 const getPermissions = async (paginator) => {
-  return await Permission.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) }
-  ]);
+  return await Permission.find({
+    name: { $regex: paginator.search, $options: 'i' } 
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .exec();
 }
 
 const getCountPermissions = async (paginator) => {
-  return await Permission.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) },
-    { $count: 'name' }
-  ]).then(response => response[0] ? response[0].name : 0);
+  return await Permission.find({
+    name: { $regex: paginator.search, $options: 'i' } 
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .countDocuments();
 }
 
 const searchPermissions = async (search) => {
-  return await Permission.aggregate([
-    { $match: { name: { $regex: search, $options: 'i' } } },
-    { $limit: 10 }
-  ]);
+  return await Permission.find({
+    name: { $regex: search, $options: 'i' }
+  })
+    .limit(10);
 }
 
 const getAllPermissions = async () => {

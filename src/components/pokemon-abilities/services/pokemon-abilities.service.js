@@ -14,12 +14,13 @@ const getAllPokemonAbilities = async() => {
 }
 
 const getPokemonAbilities = async (paginator) => {
-  return await PokemonAbilities.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) }
-  ]);
+  return await PokemonAbilities.find({
+    name: { $regex: paginator.search, $options: 'i' }
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .exec();
 }
 
 const searchPokemonAbilities = async (search) => {
@@ -29,16 +30,14 @@ const searchPokemonAbilities = async (search) => {
   ]);
 }
 
-const getCountPokemonAbilities = async () => {
-  return await PokemonAbilities.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) },
-    { $count: 'name' }
-  ]).then(response => {
-    return response[0] ? response[0].name : 0
-  });
+const getCountPokemonAbilities = async (paginator) => {
+  return await PokemonAbilities.find({
+    name: { $regex: paginator.search, $options: 'i' }
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .countDocuments();
 }
 
 const updatePokemonAbilityById = async(pokemonAbilityId, pokemonAbility) => {
@@ -56,9 +55,9 @@ const activePokemonAbility =async (pokemonAbilityId, status)  => {
 }
 
 const getPokemonAbility = async(pokemonAbilityId) => {
-  return await PokemonAbilities.aggregate([
-    { $match: { _id: Types.ObjectId(pokemonAbilityId) } }
-  ]).then(response => response[0]);
+  return await PokemonAbilities.findOne({
+    _id: Types.ObjectId(pokemonAbilityId)
+  });
 }
 
 module.exports = {

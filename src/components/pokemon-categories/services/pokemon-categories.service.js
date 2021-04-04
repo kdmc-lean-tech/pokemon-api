@@ -8,19 +8,23 @@ const getAllPokemonCategories = async () => {
 }
 
 const getPokemonCategories = async (paginator) => {
-  return await PokemonCategory.aggregate([
-    { $match: { name: { $regex: paginator.search, $options: 'i' } } },
-    { $sort: paginator.sort },
-    { $limit: Number(paginator.itemPerPage) },
-    { $skip: Number(paginator.offset) }
-  ]);
+  return await PokemonCategory.find({
+    name: { $regex: paginator.search, $options: 'i' }
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .exec();
 }
 
 const getCountPokemonCategories = async (paginator) => {
-  return await PokemonCategory.aggregate([
-    { $match: { name: { $regex: paginator.search } } },
-    { $count: 'name' }
-  ]).then(response => response[0] ? response[0].name : 0);
+  return await PokemonCategory.find({
+    name: { $regex: paginator.search, $options: 'i' }
+  })
+    .sort(paginator.sort)
+    .limit(Number(paginator.itemPerPage))
+    .skip(Number(paginator.offset))
+    .countDocuments();
 }
 
 const createPokemonCategories = async (pokemonCategories) => {

@@ -19,7 +19,7 @@ const createPokemon = async (pokemon, userId) => {
 const getPokemon = async (pokemonId) => {
   return Pokemon.findOne({
     $and: [
-      { _id: pokemonId },
+      { _id: Types.ObjectId(pokemonId) },
       { active: true }
     ]
   })
@@ -131,22 +131,19 @@ const getTotalPokemons = async (paginator) => {
 }
 
 const searchPokemons = async (search = '') => {
-  return await Pokemon.aggregate([
-    { $lookup: avatarLookup },
-    { $unwind: { path: '$avatar', preserveNullAndEmptyArrays: true } },
-    { $lookup: statusLookup },
-    { $unwind: { path: '$status', preserveNullAndEmptyArrays: true } },
-    { $match: { name: { $regex: search, $options: 'i' } } },
-    { $limit: 10 },
-    {
-      $project: {
-        name: 1,
-        pokedexNumber: 1,
-        'avatar.url': 1,
-        'status.name': 1
-      }
-    }
-  ]);
+  return await Pokemon.find({
+    name: { $regex: search, $options: 'i' }
+  })
+    .populate({
+      path: 'avatar',
+      select: 'url'
+    })
+    .populate({
+      path: 'status',
+      select: 'name'
+    })
+    .select('name pokedexNumber')
+    .exec();
 }
 
 const activePokemon  = async (pokemonId, status) => {

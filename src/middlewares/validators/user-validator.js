@@ -10,17 +10,19 @@ const authValidator = (roles) => {
     const token  = req.headers.token;
     try {
       const { payload }= await verifyToken(token);
+
       if (!payload) {
         return unauthorizedError(res, `You do not have permission to perform this action.`);
       }
+
       const { roleId, active, _id } = payload;
-      
       if (!active) {
         return unauthorizedError(res, `The user is not active on the platform.`);
       }
 
       const userRole = await getRole(roleId._id);
       const roleExist = roles.find(role => role === userRole.name);
+
       if (!roleExist) {
         return unauthorizedError(res, `You do not have permission to perform this action.`);
       }
