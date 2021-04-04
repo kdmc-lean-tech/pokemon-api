@@ -62,7 +62,7 @@ const seeMessage = async (messageId) => {
 }
 
 const getMessage = async (messageId) => {
-  return await Message.find({
+  return await Message.findOne({
     _id: Types.ObjectId(messageId)
   })
     .populate('user')

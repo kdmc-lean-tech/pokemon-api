@@ -12,6 +12,13 @@ const RoleSchema = new Schema({
       required: true
     }
   ],
+  permissions: [
+    {
+      type: Types.ObjectId,
+      ref: 'Permission',
+      required: true
+    }
+  ],
   active: {
     type: Boolean,
     default: true

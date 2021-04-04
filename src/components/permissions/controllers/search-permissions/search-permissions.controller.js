@@ -4,7 +4,7 @@ const {
   internalServerError
 } = require('../../../../utils/result-response/result-response.utils');
 
-const searchPermissionsController = (req, res) => {
+const searchPermissionsController = async (req, res) => {
   const search = req.params.search;
   try {
     const permissions = await searchPermissions(search);

@@ -27,6 +27,12 @@ const getUserByEmail = async (userEmail) => {
     .populate({
       path: 'roleId',
       populate: {
+        path: 'permissions'
+      }
+    })
+    .populate({
+      path: 'roleId',
+      populate: {
         path: 'modules'
       }
     })
