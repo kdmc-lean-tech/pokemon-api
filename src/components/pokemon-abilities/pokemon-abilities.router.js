@@ -7,7 +7,9 @@ const {
   createPokemonAbilitiesController,
   updatePokemonAbilityController,
   getAllPokemonAbilitiesController,
-  getPokemonAbilityController
+  getPokemonAbilityController,
+  searchPokemonAbilitiesController,
+  getPokemonAbilitiesController
 } = require('./controllers/index');
 
 const checkParams = buildCheckFunction(['params']);
@@ -25,9 +27,13 @@ createPokemonAbilitiesController);
 router.get('/',
   [
     authValidator(['user', 'admin']),
+    checkQueries('page').not().isEmpty(),
+    checkQueries('itemPerPage').not().isEmpty(),
+    checkQueries('sort').not().isEmpty(),
+    checkQueries('search').exists(),
     requestValidator
   ],
-getAllPokemonAbilitiesController);
+getPokemonAbilitiesController);
 
 router.put('/:id',
   [
@@ -55,5 +61,20 @@ router.get('/:id',
     requestValidator
   ],
 getPokemonAbilityController);
+
+router.get('/all/abilities',
+  [
+    authValidator(['user', 'admin']),
+    requestValidator
+  ],
+getAllPokemonAbilitiesController);
+
+router.get('/search/:search',
+  [
+    authValidator(['user', 'admin']),
+    checkQueries('search').exists(),
+    requestValidator
+  ],
+searchPokemonAbilitiesController);
 
 module.exports = router;

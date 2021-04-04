@@ -28,7 +28,6 @@ const uploadsMiddleware = async (req, res, next) => {
     req.image = await saveImage(result, path, image);
     next();
   } catch (error) {
-    console.log(error);
     await removeS3ImageOnError(isUploaded, path);
     return internalServerError(res, error);
   }

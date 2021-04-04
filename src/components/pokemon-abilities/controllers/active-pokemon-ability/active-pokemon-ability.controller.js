@@ -13,8 +13,8 @@ const activePokemonAbilityController = async(req, res) => {
     if (!pokemonAbility) {
       return notFoundError(res);
     }
-    await activePokemonAbility(pokemonAbilityId, { active });
-    return successResponse(res, null, `The pokemon ability was updated`);
+    await activePokemonAbility(pokemonAbilityId, active);
+    return successResponse(res, pokemonAbility);
   } catch (error) {
     return internalServerError(res, error);
   }

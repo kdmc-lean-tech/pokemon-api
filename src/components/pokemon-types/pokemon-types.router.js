@@ -5,7 +5,9 @@ const {
   getAllPokemonTypesController,
   updatePokemonTypeController,
   activePokemonController,
-  getPokemonTypeController
+  getPokemonTypeController,
+  searchPokemonTypesController,
+  getPokemonTypesController
 } = require('./controllers/index');
 const { requestValidator } = require('../../middlewares/validators/request-validators');
 const { authValidator } = require('../../middlewares/validators/user-validator');
@@ -23,7 +25,7 @@ router.post('/',
   ],
 createPokemonTypesController);
 
-router.get('/',
+router.get('/all/types',
   [
     authValidator(['user', 'admin']),
     requestValidator
@@ -55,6 +57,25 @@ router.get('/:id',
     checkParams('id').exists(),
     requestValidator
   ],
-getPokemonTypeController)
+getPokemonTypeController);
+
+router.get('/search/:search',
+  [
+    authValidator(['user', 'admin']),
+    checkParams('search').exists(),
+    requestValidator
+  ],
+searchPokemonTypesController);
+
+router.get('/',
+  [
+    authValidator(['user', 'admin']),
+    checkQueries('page').not().isEmpty(),
+    checkQueries('itemPerPage').not().isEmpty(),
+    checkQueries('sort').not().isEmpty(),
+    checkQueries('search').exists(),
+    requestValidator
+  ],
+getPokemonTypesController);
 
 module.exports = router;

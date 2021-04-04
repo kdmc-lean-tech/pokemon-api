@@ -4,6 +4,8 @@ const { authValidator } = require('../../middlewares/validators/user-validator')
 const { body, buildCheckFunction } = require('express-validator');
 const {
   getPokemonCategoriesController,
+  getAllPokemonCategoriesController,
+  searchPokemonCategoriesController,
   getPokemonCategoryController,
   updatePokemonCategoryController,
   createPokemonCategoriesController,
@@ -11,6 +13,7 @@ const {
 } = require('./controllers/index');
 
 const checkParams = buildCheckFunction(['params']);
+const checkQueries = buildCheckFunction(['query']);
 
 const router = Router();
 
@@ -55,5 +58,22 @@ router.get('/',
     requestValidator
   ],
 getPokemonCategoriesController);
+
+
+router.get('/all/categories',
+  [
+    authValidator(['admin', 'user']),
+    requestValidator
+  ],
+getAllPokemonCategoriesController);
+
+router.get('/search/:search',
+  [
+    authValidator(['admin']),
+    checkQueries('search').exists(),
+    requestValidator
+  ],
+searchPokemonCategoriesController);
+
 
 module.exports = router;

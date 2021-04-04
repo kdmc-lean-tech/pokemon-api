@@ -3,7 +3,7 @@ const { encryptPassword } = require('../../../utils/bcryptjs/encrypt.utils');
 const { Types } = require('mongoose');
 const { getRoleByName } = require('../../roles/services/roles.service');
 const { roleLookup, avatarLookup } = require('./lookups/user.lookups');
-const { getMessagesFromUser, getMessagesFromUsers } = require('../../messages/services/messages.service');
+const { getMessagesFromUsers } = require('../../messages/services/messages.service');
 
 const registerUser = async (user) => {
   const { password } = user;
@@ -27,7 +27,18 @@ const getUserByEmail = async (userEmail) => {
   return await User.aggregate([
     { $match: { email: userEmail } },
     { $lookup: roleLookup },
-    { $unwind: '$roleId' },
+    {
+      $unwind: {
+        path: "$roleId",
+        preserveNullAndEmptyArrays: true
+      },
+    },
+    { $lookup: {
+      from: 'modules',
+      localField: 'roleId.modules',
+      foreignField: '_id',
+      as: 'roleId.modules'
+    }},
     { $lookup: avatarLookup },
     { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } }
   ]).then(user => user[0]);

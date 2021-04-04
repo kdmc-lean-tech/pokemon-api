@@ -18,10 +18,20 @@ const {
   updatePokemonAbilityController
 } = require('../controllers/update-pokemon-ability/update-pokemon-ability.controller');
 
+const {
+  searchPokemonAbilitiesController
+} = require('./search-pokemon-abilities/search-pokemon-abilities.controller');
+
+const {
+  getPokemonAbilitiesController
+} = require('./get-pokemon-abilities/get-pokemon-abilities.controller');
+
 module.exports = {
   activePokemonAbilityController,
   createPokemonAbilitiesController,
   getPokemonAbilityController,
   getAllPokemonAbilitiesController,
-  updatePokemonAbilityController
+  updatePokemonAbilityController,
+  searchPokemonAbilitiesController,
+  getPokemonAbilitiesController
 }

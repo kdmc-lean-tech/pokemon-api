@@ -1,5 +1,6 @@
 const Role = require('../models/roles.model');
 const { Types } = require('mongoose');
+const { moduleLookup } = require('./lookup/roles.lookup');
 
 const createRole = async(role) => {
   return await Role.create(role);
@@ -15,15 +16,16 @@ const getAllRoles = async(paginator) => {
 }
 
 const getRole = async(roleId) => {
-  return await Role.findOne({ _id: roleId });
+  return await Role.aggregate([
+    { $lookup: moduleLookup },
+    { $match: { _id: Types.ObjectId(roleId) } },
+  ]).then(response => response[0]);
 }
 
 const updateRole = async(roleId, role) => {
-  const { name } = role;
   return await Role.updateOne(
     { _id: Types.ObjectId(roleId) },
-    { $set: { name } },
-    { lean: true, new: true }
+    { $set: role }
   );
 }
 
@@ -37,9 +39,12 @@ const activeRole = async (roleId, status) => {
 }
 
 const getRoleByName = async (roleName) => {
-  return await Role.findOne(
-    { name: roleName }
-  );
+  return await Role.aggregate([
+    { $match:
+      { name: { $eq: roleName } }
+    },
+    { $lookup: moduleLookup }
+  ]).then(response => response[0]);
 }
 
 const getCountRoles = async () => {

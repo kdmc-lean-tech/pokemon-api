@@ -3,7 +3,7 @@ const roleLookup = {
   localField: 'roleId',
   foreignField: '_id',
   as: 'roleId'
-};
+}
 
 const avatarLookup = {
   from: 'images',
@@ -14,5 +14,5 @@ const avatarLookup = {
 
 module.exports = {
   roleLookup,
-  avatarLookup
+  avatarLookup,
 }

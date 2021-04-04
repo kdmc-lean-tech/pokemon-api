@@ -1,4 +1,4 @@
-const { getPokemonCategory } = require('../../services/pokemon-categories.services');
+const { getPokemonCategory } = require('../../services/pokemon-categories.service');
 const {
   internalServerError,
   successResponse,

@@ -7,13 +7,13 @@ const {
 
 const updateRoleController = async(req, res) => {
   const roleId = req.params.id;
-  const { name } = req.body;
+  const body = req.body;
   try {
     const role = await getRole(roleId);
     if (!role) {
       return notFoundError(res);
     }
-    await updateRole(roleId, { name });
+    await updateRole(roleId, body);
     return successResponse(res, role);
   } catch (error) {
     return internalServerError(res, error);

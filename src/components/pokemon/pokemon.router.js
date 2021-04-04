@@ -4,7 +4,8 @@ const {
   getPokemonController,
   getAllPokemonsController,
   updatePokemonController,
-  activePokemonController
+  activePokemonController,
+  searchPokemonsController
 } = require('./controllers/index');
 const { requestValidator } = require('../../middlewares/validators/request-validators');
 const { authValidator } = require('../../middlewares/validators/user-validator');
@@ -61,7 +62,6 @@ router.put('/:id',
     body('abilities').isArray({ min: 1 }),
     body('pokemonStatistics').not().isEmpty(),
     body('description').not().isEmpty(),
-    body('sex').not().isEmpty(),
     requestValidator
   ],
 updatePokemonController);
@@ -73,5 +73,13 @@ router.patch('/:id/active',
     requestValidator
   ],
 activePokemonController);
+
+router.get('/search/pokemons',
+  [
+    authValidator(['admin', 'user']),
+    checkQueries('search').exists(),
+    requestValidator
+  ],
+searchPokemonsController);
 
 module.exports = router;

@@ -64,9 +64,9 @@ const PokemonSchema = new Schema({
     ref: 'Image'
   },
   status: {
-    type: String,
-    enum: ['REJECTED', 'APPROVED', 'PENDING', 'EXPIRED'],
-    default: 'PENDING'
+    type: Types.ObjectId,
+    ref: 'PokemonStatus',
+    required: true
   },
   categories: [
     {
@@ -78,6 +78,16 @@ const PokemonSchema = new Schema({
   closingDate: {
     type: Date,
     required: true
+  },
+  prevEvolution: {
+    type: Types.ObjectId,
+    ref: 'Pokemon',
+    required: false
+  },
+  nextEvolution: {
+    type: Types.ObjectId,
+    ref: 'Pokemon',
+    required: false
   }
 }, {
   timestamps: true

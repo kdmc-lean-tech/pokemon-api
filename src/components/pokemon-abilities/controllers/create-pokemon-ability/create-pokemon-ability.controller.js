@@ -7,9 +7,9 @@ const {
 } = require('../../../../utils/result-response/result-response.utils');
 
 const createPokemonAbilitiesController = async (req, res) => {
-  const { pokemonAbilities } = req.body;
+  const body = req.body;
   try {
-    const results = await createPokemonAbilities(pokemonAbilities);
+    const results = await createPokemonAbilities(body);
     return createdReponse(res, results);
   } catch (error) {
     return internalServerError(res, error);

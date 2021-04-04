@@ -1,18 +1,15 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model, Types } = require('mongoose');
 
 const RoleSchema = new Schema({
   name: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   modules: [
     {
-      name: {
-        type: String,
-        required: true,
-        unique: true
-      }
+      type: Types.ObjectId,
+      ref: 'Modules',
+      required: true
     }
   ],
   active: {

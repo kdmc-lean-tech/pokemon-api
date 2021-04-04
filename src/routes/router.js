@@ -7,6 +7,8 @@ const pokemonRouter = require('../components/pokemon/pokemon.router');
 const messagesRouter = require('../components/messages/messages.router');
 const uploadRouter = require('../components/uploads/uploads.router');
 const pokemonCategoriesRouter = require('../components/pokemon-categories/pokemon-categories.router');
+const pokemonStatusRouter = require('../components/pokemon-status/pokemon-status.router');
+const modulesRouter = require('../components/modules/modules.router');
 
 module.exports = {
   init: (app) => {
@@ -20,6 +22,8 @@ module.exports = {
     router.use('/messages', messagesRouter);
     router.use('/upload', uploadRouter);
     router.use('/pokemon-categories', pokemonCategoriesRouter);
+    router.use('/pokemon-status', pokemonStatusRouter);
+    router.use('/modules', modulesRouter);
   
     app.use('/api/v1/', router);
   }

@@ -3,36 +3,60 @@ const Pokemon = require('../models/pokemon.model');
 const { addClosingTime } = require('../transforms/pokemon.transforms');
 const {
   createByLookup,
-  typesLookup,
-  abilitiesLookup,
-  avatarLookup
+  avatarLookup,
+  statusLookup,
 } = require('./lookups/pokemon.lookup');
-const PokemonNotes = require('../../pokemon-notes/models/pokemon-notes.model');
+const { createNote } = require('../../../components/pokemon-notes/services/pokemon-notes.service');
+const { getPokemonStatusByName } = require('../../pokemon-status/services/pokemon-status.service');
 
 const createPokemon = async (pokemon, userId) => {
   pokemon.createdBy = userId;
+  const status = await getPokemonStatusByName('PENDING');
+  pokemon.status = status._id;
   return await Pokemon.create(addClosingTime(pokemon));
 }
 
 const getPokemon = async (pokemonId) => {
-  return await Pokemon.aggregate(
-    [
-      { $lookup: avatarLookup },
-      { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } },
-      { 
-        $match: {
-            $and: [
-              { _id: Types.ObjectId(pokemonId) },
-              { active: true }
-            ]
-        }
-      },
-      { $lookup: createByLookup },
-      { $unwind: '$createdBy' },
-      { $lookup: typesLookup },
-      { $lookup: abilitiesLookup },
+  return Pokemon.findOne({
+    $and: [
+      { _id: pokemonId },
+      { active: true }
     ]
-  ).then(pokemon => pokemon[0]);
+  })
+  .populate('avatar')
+  .populate('createdBy')
+  .populate('status')
+  .populate('abilities')
+  .populate('types')
+  .populate('categories')
+  .populate({
+    path: 'nextEvolution',
+    populate: {
+      path: 'status',
+      select: 'name -_id'
+    }
+  })
+  .populate({
+    path: 'nextEvolution',
+    populate: {
+      path: 'avatar',
+      select: 'url -_id'
+    }
+  })
+  .populate({
+    path: 'prevEvolution',
+    populate: {
+      path: 'status',
+      select: 'name -_id'
+    }
+  })
+  .populate({
+    path: 'prevEvolution',
+    populate: {
+      path: 'avatar',
+      select: 'url -_id'
+    },
+  });
 }
 
 const getAllPokemons = async (paginator) => {
@@ -40,7 +64,9 @@ const getAllPokemons = async (paginator) => {
     { $lookup: createByLookup },
     { $unwind: `\$${ createByLookup.as }` },
     { $lookup: avatarLookup },
-    { $unwind: { path: "$avatar", preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: '$avatar', preserveNullAndEmptyArrays: true } },
+    { $lookup: statusLookup },
+    { $unwind: { path: '$status', preserveNullAndEmptyArrays: true } },
     { $match:
       {
         $and: [
@@ -66,7 +92,8 @@ const getAllPokemons = async (paginator) => {
         'createdBy.name': 1,
         createdAt: 1,
         generation: 1,
-        'avatar.url': 1
+        'avatar.url': 1,
+        'status.name': 1
       }
     },
   ]);
@@ -78,6 +105,9 @@ const getTotalPokemons = async (paginator) => {
     { $lookup: createByLookup },
     { $unwind: `\$${ createByLookup.as }` },
     { $lookup: avatarLookup },
+    { $unwind: { path: '$avatar', preserveNullAndEmptyArrays: true } },
+    { $lookup: statusLookup },
+    { $unwind: { path: '$status', preserveNullAndEmptyArrays: true } },
     { $match: 
       {
         $and: [
@@ -98,6 +128,25 @@ const getTotalPokemons = async (paginator) => {
   ).then(response => {
     return response[0] ? response[0].name : 0
   });
+}
+
+const searchPokemons = async (search = '') => {
+  return await Pokemon.aggregate([
+    { $lookup: avatarLookup },
+    { $unwind: { path: '$avatar', preserveNullAndEmptyArrays: true } },
+    { $lookup: statusLookup },
+    { $unwind: { path: '$status', preserveNullAndEmptyArrays: true } },
+    { $match: { name: { $regex: search, $options: 'i' } } },
+    { $limit: 10 },
+    {
+      $project: {
+        name: 1,
+        pokedexNumber: 1,
+        'avatar.url': 1,
+        'status.name': 1
+      }
+    }
+  ]);
 }
 
 const activePokemon  = async (pokemonId, status) => {
@@ -126,18 +175,20 @@ const updateAvatarPokemon = async (pokemon, avatar) => {
 }
 
 const setStatusInPokemonCreated = async (pokemonId, status) => {
+  const statusSearch = await getPokemonStatusByName(status);
   return await Pokemon.updateOne(
     { _id: Types.ObjectId(pokemonId) },
-    { $set: { status } }
+    { $set: { status: statusSearch } }
   );
 }
 
 const approvePokemonCreated = async (pokemonId) => {
   const pokemon = await getPokemon(pokemonId);
-  if (pokemon.status === 'PENDING') {
+  const approvedStatus = await getPokemonStatusByName('APPROVED');
+  if (pokemon.status.name === 'PENDING') {
     return await Pokemon.updateOne(
       { _id: Types.ObjectId(pokemonId) },
-      { $set: { status: 'APPROVED' } }
+      { $set: { status: approvedStatus } }
     );
   } else {
     return null;
@@ -147,10 +198,12 @@ const approvePokemonCreated = async (pokemonId) => {
 const getPokemonsWithStatusPending = async () => {
   return await Pokemon.aggregate(
     [
+      { $lookup: statusLookup },
+      { $unwind: { path: '$status', preserveNullAndEmptyArrays: true } },
       { $match:
         {
           $and: [
-            { status: { $eq: 'PENDING' } },
+            { 'status.name': { $eq: 'PENDING' } },
             { active: true }
           ]
         }
@@ -172,7 +225,7 @@ const rejectPokemonCreated = async (pokemonId, note, userId) => {
     createdBy: userId,
     pokemon: pokemonId
   }
-  return await PokemonNotes.create(model);
+  return await createNote(model);
 }
 
 module.exports = {
@@ -187,5 +240,6 @@ module.exports = {
   getPokemonsWithStatusPending,
   approvePokemonCreated,
   reTryCreatePokemon,
-  rejectPokemonCreated
+  rejectPokemonCreated,
+  searchPokemons
 }

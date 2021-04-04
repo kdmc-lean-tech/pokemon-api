@@ -18,10 +18,20 @@ const {
   getPokemonTypeController
 } = require('../controllers/get-pokemon-type/get-pokemon-type.controller');
 
+const {
+  getPokemonTypesController
+} = require('../controllers/get-pokemon-types/get-pokemon-types.controller');
+
+const {
+  searchPokemonTypesController
+} = require('../controllers/search-pokemon-types/search-pokemon-types.controller');
+
 module.exports = {
   createPokemonTypesController,
   getAllPokemonTypesController,
   updatePokemonTypeController,
   activePokemonController,
-  getPokemonTypeController
+  getPokemonTypeController,
+  getPokemonTypesController,
+  searchPokemonTypesController
 }
