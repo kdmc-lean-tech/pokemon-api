@@ -93,7 +93,8 @@ const getAllPokemons = async (paginator) => {
         createdAt: 1,
         generation: 1,
         'avatar.url': 1,
-        'status.name': 1
+        'status.name': 1,
+        closingDate: 1
       }
     },
   ]);
