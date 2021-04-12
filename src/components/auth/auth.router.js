@@ -6,8 +6,11 @@ const {
   loginController,
   activateRegisteredUserController,
   forgotPasswordController,
-  changePasswordController
+  changePasswordController,
+  editProfileController
 } = require('./controllers/index');
+const { authValidator } = require('../../middlewares/validators/user-validator');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const router = Router();
 
@@ -53,5 +56,13 @@ router.post('/change-password',
     requestValidator
   ],
 changePasswordController);
+
+router.put('/:id/profile',
+  [
+    authValidator([Role.Admin, Role.User]),
+    body('name').notEmpty(),
+    requestValidator,
+  ],
+editProfileController);
 
 module.exports = router;

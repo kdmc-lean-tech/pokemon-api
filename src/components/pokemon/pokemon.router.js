@@ -10,6 +10,7 @@ const {
 const { requestValidator } = require('../../middlewares/validators/request-validators');
 const { authValidator } = require('../../middlewares/validators/user-validator');
 const { body, buildCheckFunction } = require('express-validator');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const checkParams = buildCheckFunction(['params']);
 const checkQueries = buildCheckFunction(['query']);
@@ -17,7 +18,7 @@ const router = Router();
 
 router.post('/',
   [
-    authValidator(['user', 'admin']),
+    authValidator([Role.User, Role.Admin]),
     body('name').not().isEmpty(),
     body('isLegendary').not().isEmpty(),
     body('generation').not().isEmpty(),
@@ -51,7 +52,7 @@ getAllPokemonsController);
 
 router.put('/:id',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     body('name').not().isEmpty(),
     body('isLegendary').not().isEmpty(),
     body('generation').not().isEmpty(),
@@ -68,7 +69,7 @@ updatePokemonController);
 
 router.patch('/:id/active',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     body('active').not().isEmpty(),
     requestValidator
   ],
@@ -76,7 +77,7 @@ activePokemonController);
 
 router.get('/search/pokemons',
   [
-    authValidator(['admin', 'user']),
+    authValidator([Role.Admin, Role.User]),
     checkQueries('search').exists(),
     requestValidator
   ],

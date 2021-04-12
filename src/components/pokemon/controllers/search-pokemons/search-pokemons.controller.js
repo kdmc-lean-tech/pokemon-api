@@ -10,6 +10,7 @@ const searchPokemonsController = async (req, res) => {
     const pokemons = await searchPokemons(search);
     return successResponse(res, { results: pokemons });
   } catch (error) {
+    console.log(error);
     return internalServerError(res, error);
   }
 }

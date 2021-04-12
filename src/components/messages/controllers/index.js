@@ -14,9 +14,14 @@ const {
   getMessageController
 } = require('../controllers/get-message/get-message.controller');
 
+const {
+  getSocketMessageController
+} = require('../controllers/get-socket-message/get-socket-message.controller');
+
 module.exports = {
   getMessagesController,
   saveMessageController,
   seeMessageController,
-  getMessageController
+  getMessageController,
+  getSocketMessageController
 }

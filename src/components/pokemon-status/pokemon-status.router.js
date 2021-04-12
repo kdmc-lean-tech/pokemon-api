@@ -7,20 +7,21 @@ const {
   getAllPokemonStatusController,
   getPokemonStatusController
 } = require('./controllers/index');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const checkParams = buildCheckFunction(['params']);
 const router = Router();
 
 router.get('/',
   [
-    authValidator(['admin', 'user']),
+    authValidator([Role.Admin, Role.User]),
     requestValidator
   ],
 getAllPokemonStatusController);
 
 router.get('/:id',
   [
-    authValidator(['admin', 'user']),
+    authValidator([Role.Admin, Role.User]),
     checkParams('id').exists(),
     requestValidator
   ],
@@ -28,7 +29,7 @@ getPokemonStatusController);
 
 router.post('/',
   [
-    authValidator(['admin', 'user']),
+    authValidator([Role.Admin, Role.User]),
     body('name').notEmpty(),
     requestValidator
   ],

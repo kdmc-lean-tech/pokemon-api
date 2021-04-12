@@ -1,17 +1,38 @@
 const Message = require('../models/messages.model');
 const { Types } = require('mongoose');
 
-const getMessages = async (userId, messageOf) => {
-  return await Message.find({
+const getMessages = async (userId, messageOf, paginator) => {
+  const results = await Message.find({
     $or: [
       { $and: [ { to: Types.ObjectId(messageOf) }, { of: Types.ObjectId(userId) } ] },
       { $and: [ { to: Types.ObjectId(userId) },    { of: Types.ObjectId(messageOf) }] }
     ]
   })
-    .sort({ createdAt: 1 })
-    .populate('user')
-    .populate('of')
-    .populate('to')
+    .sort({ createdAt: -1 })
+    .skip(paginator.offset) // TODO: Implement paginator here......
+    .limit(paginator.limit)
+    .populate({
+      path: 'of',
+      select: 'name'
+    })
+    .populate({
+      path: 'to',
+      select: 'name'
+    });
+  return results.reverse();
+}
+
+const getLimitMessages = async (userId, messageOf) => {
+  return await Message.find({
+    $and: [
+      {
+        $or: [
+          { $and: [ { to: Types.ObjectId(userId) }, { of: Types.ObjectId(messageOf) }] }
+        ]
+      },
+      { seen: false }
+    ]
+  })
     .exec();
 }
 
@@ -24,17 +45,13 @@ const getMessagesFromUsers = async (users, userId) => {
 }
 
 const getMessagesFromUser = async (user, to) => {
-  const totalMessages = await getMessages(to, user._id);
+  const totalMessages = await (await getLimitMessages(to, user._id)).length;
   return {
     _id: user._id,
     name: user.name,
     avatar: user.avatar,
     online: user.online,
-    totalMessages: totalMessages.filter(m =>
-      String(m.of._id) === String(user._id)
-      &&
-      m.seen === false
-    ).length
+    totalMessages
   }
 }
 
@@ -77,5 +94,6 @@ module.exports = {
   seeMessage,
   getMessage,
   getMessagesFromUser,
-  getMessagesFromUsers
+  getMessagesFromUsers,
+  getLimitMessages
 }

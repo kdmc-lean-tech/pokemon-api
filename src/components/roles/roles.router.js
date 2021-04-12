@@ -9,6 +9,7 @@ const {
   updateRoleController
 } = require('./controllers/index');
 const { authValidator } = require('../../middlewares/validators/user-validator');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const checkParams = buildCheckFunction(['params']);
 const checkQueries = buildCheckFunction(['query']);
@@ -16,7 +17,7 @@ const router = Router();
 
 router.post('/',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     body('name').not().isEmpty(),
     body('modules').isArray({ min: 1 }),
     requestValidator
@@ -25,7 +26,7 @@ createRoleController);
 
 router.get('/',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkQueries('page').not().isEmpty(),
     checkQueries('itemPerPage').not().isEmpty(),
     checkQueries('sort').not().isEmpty(),
@@ -36,7 +37,7 @@ getAllRolesController);
 
 router.get('/:id',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     requestValidator
   ],
@@ -44,7 +45,7 @@ getRoleController);
 
 router.patch('/:id',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     body('active').not().isEmpty(),
     requestValidator
@@ -53,7 +54,7 @@ activeRoleController);
 
 router.put('/:id',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     body('name').not().isEmpty(),
     body('modules').isArray({ min: 1 }),

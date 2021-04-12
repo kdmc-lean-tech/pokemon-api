@@ -11,6 +11,7 @@ const {
 } = require('./controllers/index');
 const { requestValidator } = require('../../middlewares/validators/request-validators');
 const { authValidator } = require('../../middlewares/validators/user-validator');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const checkQueries = buildCheckFunction(['query']);
 const checkParams = buildCheckFunction(['params']);
@@ -19,7 +20,7 @@ const router = Router();
 
 router.post('/',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     body('pokemonTypes').isArray({ min: 1 }),
     requestValidator
   ],
@@ -27,14 +28,14 @@ createPokemonTypesController);
 
 router.get('/all/types',
   [
-    authValidator(['user', 'admin']),
+    authValidator([Role.User, Role.Admin]),
     requestValidator
   ],
 getAllPokemonTypesController);
 
 router.put('/:id',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     body('name').not().isEmpty(),
     requestValidator
@@ -43,7 +44,7 @@ updatePokemonTypeController);
 
 router.patch('/:id/active',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     body('active').not().isEmpty(),
     body('active').isBoolean(),
@@ -53,7 +54,7 @@ activePokemonController);
 
 router.get('/:id',
   [ 
-    authValidator(['user', 'admin']),
+    authValidator([Role.User, Role.Admin]),
     checkParams('id').exists(),
     requestValidator
   ],
@@ -61,7 +62,7 @@ getPokemonTypeController);
 
 router.get('/search/:search',
   [
-    authValidator(['user', 'admin']),
+    authValidator([Role.User, Role.Admin]),
     checkParams('search').exists(),
     requestValidator
   ],
@@ -69,7 +70,7 @@ searchPokemonTypesController);
 
 router.get('/',
   [
-    authValidator(['user', 'admin']),
+    authValidator([Role.User, Role.Admin]),
     checkQueries('page').not().isEmpty(),
     checkQueries('itemPerPage').not().isEmpty(),
     checkQueries('sort').not().isEmpty(),

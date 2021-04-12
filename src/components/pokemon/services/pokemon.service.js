@@ -5,15 +5,22 @@ const {
   createByLookup,
   avatarLookup,
   statusLookup,
+  typesLookup,
+  categoriesLookup
 } = require('./lookups/pokemon.lookup');
 const { createNote } = require('../../../components/pokemon-notes/services/pokemon-notes.service');
 const { getPokemonStatusByName } = require('../../pokemon-status/services/pokemon-status.service');
+const {
+  createPokemonNotification
+} = require('../../../shared/notifications/pokemon/pokemon.notifications');
 
 const createPokemon = async (pokemon, userId) => {
   pokemon.createdBy = userId;
   const status = await getPokemonStatusByName('PENDING');
   pokemon.status = status._id;
-  return await Pokemon.create(addClosingTime(pokemon));
+  const newPokemon = await Pokemon.create(addClosingTime(pokemon));
+  createPokemonNotification.next({ pokemon: newPokemon });
+  return newPokemon;
 }
 
 const getPokemon = async (pokemonId) => {
@@ -67,6 +74,8 @@ const getAllPokemons = async (paginator) => {
     { $unwind: { path: '$avatar', preserveNullAndEmptyArrays: true } },
     { $lookup: statusLookup },
     { $unwind: { path: '$status', preserveNullAndEmptyArrays: true } },
+    { $lookup: typesLookup },
+    { $lookup: categoriesLookup },
     { $match:
       {
         $and: [
@@ -75,16 +84,19 @@ const getAllPokemons = async (paginator) => {
               { name: { $regex: paginator ? paginator.search : '', $options: 'i' } },
               { pokedexNumber: paginator ? Number(paginator.search) : '' },
               { generation: paginator ? Number(paginator.search) : '' },
-              { 'createdBy.name': { $regex: paginator ? paginator.search : '', $options: 'i' } }
+              { 'createdBy.name': { $regex: paginator ? paginator.search : '', $options: 'i' } },
+              { 'types.name': { $regex: paginator ? paginator.search : '', $options: 'i' } },
+              { 'categories.name': { $regex: paginator ? paginator.search : '', $options: 'i' } },
+              { 'status.name':  { $regex: paginator ? paginator.search : '', $options: 'i' } }
             ]
           },
           { active: true }
         ]
       }
     },
+    { $sort: paginator.sort },
     { $skip: Number(paginator.offset) },
     { $limit: Number(paginator.itemPerPage) },
-    { $sort: paginator.sort },
     {
       $project: {
         name: 1,
@@ -109,6 +121,8 @@ const getTotalPokemons = async (paginator) => {
     { $unwind: { path: '$avatar', preserveNullAndEmptyArrays: true } },
     { $lookup: statusLookup },
     { $unwind: { path: '$status', preserveNullAndEmptyArrays: true } },
+    { $lookup: typesLookup },
+    { $lookup: categoriesLookup },
     { $match: 
       {
         $and: [
@@ -117,7 +131,10 @@ const getTotalPokemons = async (paginator) => {
               { name: { $regex: paginator ? paginator.search : '', $options: 'i' } },
               { pokedexNumber: paginator ? Number(paginator.search) : '' },
               { generation: paginator ? Number(paginator.search) : '' },
-              { 'createdBy.name': { $regex: paginator ? paginator.search : '', $options: 'i' } }
+              { 'createdBy.name': { $regex: paginator ? paginator.search : '', $options: 'i' } },
+              { 'types.name': { $regex: paginator ? paginator.search : '', $options: 'i' } },
+              { 'categories.name': { $regex: paginator ? paginator.search : '', $options: 'i' } },
+              { 'status.name':  { $regex: paginator ? paginator.search : '', $options: 'i' } }
             ]
           },
           { active: true }
@@ -132,19 +149,44 @@ const getTotalPokemons = async (paginator) => {
 }
 
 const searchPokemons = async (search = '') => {
-  return await Pokemon.find({
-    name: { $regex: search, $options: 'i' }
-  })
-    .populate({
-      path: 'avatar',
-      select: 'url'
-    })
-    .populate({
-      path: 'status',
-      select: 'name'
-    })
-    .select('name pokedexNumber')
-    .exec();
+  return await Pokemon.aggregate([
+    { $lookup: createByLookup },
+    { $unwind: `\$${ createByLookup.as }` },
+    { $lookup: avatarLookup },
+    { $unwind: { path: '$avatar', preserveNullAndEmptyArrays: true } },
+    { $lookup: statusLookup },
+    { $unwind: { path: '$status', preserveNullAndEmptyArrays: true } },
+    { $lookup: typesLookup },
+    { $lookup: categoriesLookup },
+    { $match: 
+      {
+        $and: [
+          { $or:
+            [
+              { name: { $regex: search, $options: 'i' } },
+              { pokedexNumber: Number(search) },
+              { generation: Number(search) },
+              { 'createdBy.name': { $regex: search, $options: 'i' } },
+              { 'types.name': { $regex: search, $options: 'i' } },
+              { 'categories.name': { $regex: search, $options: 'i' } },
+              { 'status.name':  { $regex: search, $options: 'i' } }
+            ]
+          },
+          { active: true }
+        ]
+      }
+    },
+    { $limit: 10 },
+    {
+      $project: {
+        name: 1,
+        'createdBy.name': 1,
+        'avatar.url': 1,
+        'status.name': 1,
+        pokedexNumber: 1
+      }
+    }
+  ]);
 }
 
 const activePokemon  = async (pokemonId, status) => {
@@ -156,12 +198,15 @@ const activePokemon  = async (pokemonId, status) => {
 }
 
 const updatePokemon = async (pokemonId, pokemon) => {
-  return await Pokemon.updateOne(
+  const pokemonUpdate = await Pokemon.updateOne(
     { _id: Types.ObjectId(pokemonId) },
     { 
       $set: pokemon
     }
   );
+  const pokemonToSearch = await getPokemon(pokemonId);
+  createPokemonNotification.next({ pokemon: pokemonToSearch });
+  return pokemonUpdate;
 }
 
 const updateAvatarPokemon = async (pokemon, avatar) => {

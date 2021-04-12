@@ -4,7 +4,7 @@ const sendTo = (emails) => {
   emails.forEach(email => {
     to += `${ email }, `;
   });
-  return to.substring(0, to.length - 1);
+  return to.substring(0, to.length - 2);
 }
 
 module.exports = {

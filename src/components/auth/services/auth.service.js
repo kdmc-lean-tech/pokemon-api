@@ -2,7 +2,9 @@ const User = require('../models/user.model');
 const { encryptPassword } = require('../../../utils/bcryptjs/encrypt.utils');
 const { Types } = require('mongoose');
 const { getRoleByName } = require('../../roles/services/roles.service');
-const { getMessagesFromUsers } = require('../../messages/services/messages.service');
+const {
+  getMessagesFromUsers
+} = require('../../messages/services/messages.service');
 
 const registerUser = async (user) => {
   const { password } = user;
@@ -14,10 +16,21 @@ const registerUser = async (user) => {
 
 const getUser = async(userId) => {
   return await User.findOne({
-    _id: Types.ObjectId(userId)   
+    _id: Types.ObjectId(userId)
   })
-    .populate('avatar')
-    .populate('role')
+  .populate({
+    path: 'roleId',
+    populate: {
+      path: 'permissions'
+    }
+  })
+  .populate({
+    path: 'roleId',
+    populate: {
+      path: 'modules'
+    }
+  })
+  .populate('avatar')
 }
 
 const getUserByEmail = async (userEmail) => {
@@ -66,7 +79,9 @@ const setOnlineStatus = async (userId, status) => {
   );
 }
 
-const getSocketUsers= async (search, userId) => {
+const getSocketUsers= async (search, userId, page = 1) => {
+  const itemPerPage = 10;
+  const offset = page * itemPerPage - itemPerPage;
   const results = await User.find({
     $and: [
       { name: { $regex: search ? search : '', $options: 'i' } },
@@ -74,30 +89,51 @@ const getSocketUsers= async (search, userId) => {
     ]
   })
     .sort({ online: -1 })
+    .skip(offset)
+    .limit(itemPerPage)
     .populate({
       path: 'avatar',
       select: 'url'
     })
+    .select('avatar name online')
     .exec();
 
   const users = await getMessagesFromUsers(results, userId);
   return users;
 }
 
+const getSocketUser = async (userId) => {
+  const result = await User.findOne({
+    $and: [
+      { _id: Types.ObjectId(userId) },
+      { active: true }
+    ]
+  })
+    .populate({
+      path: 'avatar',
+      select: 'url'
+    })
+    .select('avatar name online')
+  .exec();
+  return result;
+}
+
 const updateAvatarUser = async (user, avatar) => {
   user.avatar = avatar._id;
-  return await User.updateOne(
+  await User.updateOne(
     { _id: Types.ObjectId(user._id) },
     { $set: user }
   );
+  return getUser(user._id);
 }
 
 const editProfileUser = async (userId, user) => {
   const { name } = user;
-  return await User.updateOne(
+  await User.updateOne(
     { _id: Types.ObjectId(userId) },
     { $set: { name } }
   );
+  return await getUser(userId);
 }
 
 module.exports = {
@@ -109,5 +145,6 @@ module.exports = {
   setOnlineStatus,
   getSocketUsers,
   updateAvatarUser,
-  editProfileUser
+  editProfileUser,
+  getSocketUser
 }

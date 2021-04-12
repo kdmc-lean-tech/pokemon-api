@@ -7,6 +7,7 @@ const {
   uploadAvatarUserController,
   uploadAvatarPokemonController
 } = require('./images/controllers/index');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const checkParams = buildCheckFunction(['params']);
 
@@ -14,7 +15,7 @@ const router = Router();
 
 router.post('/user/:id/avatar',
   [
-    authValidator(['user', 'admin']),
+    authValidator([Role.User, Role.Admin]),
     checkParams('id').exists(),
     uploadsMiddleware,
     requestValidator
@@ -23,7 +24,7 @@ uploadAvatarUserController);
 
 router.post('/pokemon/:id/avatar',
   [
-    authValidator(['user', 'admin']),
+    authValidator([Role.Admin, Role.User]),
     checkParams('id').exists(),
     uploadsMiddleware,
     requestValidator

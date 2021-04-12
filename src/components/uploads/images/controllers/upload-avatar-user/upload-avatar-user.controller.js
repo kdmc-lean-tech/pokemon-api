@@ -17,8 +17,8 @@ const uploadAvatarUserController = async (req, res) => {
       const image = await getImage(user.avatar._id);
       await removeImageAndS3Resource(image);
     }
-    await updateAvatarUser(user, avatar);
-    return successResponse(res, user);
+    const userEdit = await updateAvatarUser(user, avatar);
+    return successResponse(res, userEdit);
   } catch (error) {
     await removeImageAndS3Resource(req.image);
     return internalServerError(res, error);

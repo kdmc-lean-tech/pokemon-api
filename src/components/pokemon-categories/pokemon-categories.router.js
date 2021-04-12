@@ -11,6 +11,7 @@ const {
   createPokemonCategoriesController,
   activePokemonCategoryController
 } = require('./controllers/index');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const checkParams = buildCheckFunction(['params']);
 const checkQueries = buildCheckFunction(['query']);
@@ -19,7 +20,7 @@ const router = Router();
 
 router.post('/',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     body('pokemonCategories').isArray({ min: 1 }),
     requestValidator
   ],
@@ -27,7 +28,7 @@ createPokemonCategoriesController);
 
 router.put('/:id',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     body('name').not().isEmpty(),
     authValidator
@@ -36,7 +37,7 @@ updatePokemonCategoryController);
 
 router.get('/:id',
   [
-    authValidator(['admin', 'user']),
+    authValidator([Role.Admin, Role.User]),
     checkParams('id').exists(),
     authValidator
   ],
@@ -44,7 +45,7 @@ getPokemonCategoryController);
 
 router.patch('/:id/active',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     body('active').not().isEmpty(),
     body('active').isBoolean(),
@@ -54,7 +55,7 @@ activePokemonCategoryController);
 
 router.get('/',
   [
-    authValidator(['admin', 'user']),
+    authValidator([Role.Admin, Role.User]),
     requestValidator
   ],
 getPokemonCategoriesController);
@@ -62,14 +63,14 @@ getPokemonCategoriesController);
 
 router.get('/all/categories',
   [
-    authValidator(['admin', 'user']),
+    authValidator([Role.Admin, Role.User]),
     requestValidator
   ],
 getAllPokemonCategoriesController);
 
 router.get('/search/:search',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkQueries('search').exists(),
     requestValidator
   ],

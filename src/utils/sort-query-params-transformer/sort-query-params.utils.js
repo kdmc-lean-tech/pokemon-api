@@ -7,6 +7,9 @@ module.exports = {
     if (sortQueryFormat.includes(',')) {
       sortQueryFormat.split(', ').forEach(item => {
         const [ field, order ] = item.split(':');
+        if (isNaN(Number(order))) {
+          return {};
+        }
         sortKeys[field] = Number(order);
       });
     } else {

@@ -3,13 +3,14 @@ const { buildCheckFunction } = require('express-validator');
 const { authValidator } = require('../../middlewares/validators/user-validator');
 const { requestValidator } = require('.././../middlewares/validators/request-validators');
 const { getMessagesController, getMessageController } = require('./controllers/index');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const checkParams = buildCheckFunction(['params']);
 const router = Router();
 
 router.get('/:of',
   [
-    authValidator(['user', 'admin']),
+    authValidator([Role.User, Role.Admin]),
     checkParams('of').exists(),
     requestValidator
   ],
@@ -17,7 +18,7 @@ getMessagesController);
 
 router.get('/message/:id',
   [
-    authValidator(['user', 'admin']),
+    authValidator([Role.User, Role.Admin]),
     checkParams('id').exists(),
     requestValidator
   ],

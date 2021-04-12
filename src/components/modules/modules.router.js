@@ -10,6 +10,7 @@ const {
   searchModuleController,
   updateModuleController
 } = require('./controllers/index');
+const { Role } = require('../../utils/constants/roles.constants');
 
 const router = Router();
 const checkParams = buildCheckFunction(['params']);
@@ -17,7 +18,7 @@ const checkQueries = buildCheckFunction(['query']);
 
 router.post('/',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     body('name').notEmpty(),
     body('path').notEmpty(),
     body('icon').notEmpty(),
@@ -28,7 +29,7 @@ createModuleController);
 
 router.get('/:id',
   [
-    authValidator(['auth']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     requestValidator
   ],
@@ -36,7 +37,7 @@ getModuleController);
 
 router.get('/',
   [
-    authValidator(['auth']),
+    authValidator([Role.Admin]),
     checkQueries('page').not().isEmpty(),
     checkQueries('itemPerPage').not().isEmpty(),
     checkQueries('sort').not().isEmpty(),
@@ -47,14 +48,14 @@ getModulesController);
 
 router.get('/all/modules',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     requestValidator
   ],
 getAllModulesController);
 
 router.get('/search/:search',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkQueries('search').exists(),
     requestValidator
   ],
@@ -62,7 +63,7 @@ searchModuleController);
 
 router.put('/:id',
   [
-    authValidator(['admin']),
+    authValidator([Role.Admin]),
     checkParams('id').exists(),
     body('name').notEmpty(),
     body('path').notEmpty(),
