@@ -79,9 +79,7 @@ const setOnlineStatus = async (userId, status) => {
   );
 }
 
-const getSocketUsers= async (search, userId, page = 1) => {
-  const itemPerPage = 10;
-  const offset = page * itemPerPage - itemPerPage;
+const getSocketUsers= async (search, userId) => {
   const results = await User.find({
     $and: [
       { name: { $regex: search ? search : '', $options: 'i' } },
@@ -89,8 +87,6 @@ const getSocketUsers= async (search, userId, page = 1) => {
     ]
   })
     .sort({ online: -1 })
-    .skip(offset)
-    .limit(itemPerPage)
     .populate({
       path: 'avatar',
       select: 'url'

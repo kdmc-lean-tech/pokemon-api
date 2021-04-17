@@ -5,10 +5,10 @@ const {
   chatRooms
 } = require('../../../../../utils/constants/socket.constants');
 
-const joinRoomEvent = async (socket, io, search, room, page) => {
+const joinRoomEvent = async (socket, io, search, room) => {
   if (chatRooms.includes(room) && room === 'users-room') {
     socket.join(`${room}/${socket.id}`);
-    const users = await getSocketUsersController(search, socket.id, page);
+    const users = await getSocketUsersController(search, socket.id);
     io.of('/chat').in(`${room}/${socket.id}`).emit('users', users);
   }  
 }
